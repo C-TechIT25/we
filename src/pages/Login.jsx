@@ -8,14 +8,14 @@ import { useAuth } from '../context/AuthContext';
 import SnackbarAlert from '../components/SnackbarAlert';
 
 export default function Login() {
-  const [email, setEmail]       = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPwd, setShowPwd]   = useState(false);
-  const [loading, setLoading]   = useState(false);
-  const [toast, setToast]       = useState({ open: false, message: '', severity: 'error' });
+  const [showPwd, setShowPwd] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [toast, setToast] = useState({ open: false, message: '', severity: 'error' });
 
   const { login } = useAuth();
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -43,8 +43,8 @@ export default function Login() {
       }}
     >
       {/* Ambient blobs */}
-      <Box sx={{ position: 'fixed', top: '-20%', left: '-10%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-      <Box sx={{ position: 'fixed', bottom: '-10%', right: '-10%', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(168,85,247,0.15) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <Box sx={{ position: 'fixed', top: '-20%', left: '-10%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <Box sx={{ position: 'fixed', bottom: '-10%', right: '-10%', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
       <Box
         component="form"
@@ -80,7 +80,7 @@ export default function Login() {
         <Typography variant="h4" fontWeight={800} textAlign="center" mb={0.5}
           sx={{ background: 'linear-gradient(135deg,#fff,#a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
         >
-          Welcome back
+          Welcome to C-Tech
         </Typography>
         <Typography variant="body2" color="text.secondary" textAlign="center" mb={4}>
           Sign in to your admin account

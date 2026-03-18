@@ -138,15 +138,15 @@ body {
 
 /* ── Image upload zone ── */
 .upload-zone {
-  border: 2px dashed rgba(129, 140, 248, 0.35);
+  border: 2px dashed rgba(255, 255, 255, 0.35);
   border-radius: 16px;
   transition: border-color 0.2s ease, background 0.2s ease;
   cursor: pointer;
 }
 
 .upload-zone:hover {
-  border-color: rgba(129, 140, 248, 0.7);
-  background: rgba(99, 102, 241, 0.06);
+  border-color: rgba(255, 255, 255, 0.7);
+  background: rgba(255, 255, 255, 0.06);
 }
 
 /* ── Scrollbar ── */
