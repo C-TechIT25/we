@@ -17,15 +17,15 @@ import { useAuth } from '../../context/AuthContext';
 const DRAWER_W = 260;
 
 const NAV = [
-  { label: 'Companies',      icon: <GridViewIcon />,    path: '/admin' },
+  { label: 'Companies', icon: <GridViewIcon />, path: '/admin' },
   { label: 'Create Company', icon: <AddBusinessIcon />, path: '/admin/create' },
 ];
 
 export default function DashboardLayout() {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { logout, currentUser }     = useAuth();
-  const navigate                    = useNavigate();
-  const location                    = useLocation();
+  const { logout, currentUser } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   const handleLogout = async () => {
     try { await logout(); navigate('/login'); }
@@ -50,7 +50,7 @@ export default function DashboardLayout() {
           <LinkRoundedIcon sx={{ fontSize: 18, color: '#000' }} />
         </Box>
         <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#fff', letterSpacing: '-0.01em', lineHeight: 1 }}>
-          LinkManager
+          C-Tech Profile
         </Typography>
       </Box>
 
@@ -122,7 +122,7 @@ export default function DashboardLayout() {
         sx={{
           /* On sm+ screens, shrink the AppBar so it doesn't overlap the drawer */
           width: { sm: `calc(100% - ${DRAWER_W}px)` },
-          ml:    { sm: `${DRAWER_W}px` },
+          ml: { sm: `${DRAWER_W}px` },
           zIndex: (theme) => theme.zIndex.drawer + 1,
         }}
       >
