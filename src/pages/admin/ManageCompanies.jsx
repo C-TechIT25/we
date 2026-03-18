@@ -47,6 +47,7 @@ export default function ManageCompanies() {
   const [editDesc, setEditDesc] = useState('');
   const [editEmail, setEditEmail] = useState('');
   const [editPhone, setEditPhone] = useState('');
+  const [editSlug, setEditSlug] = useState('');
   const [editLoading, setEditLoading] = useState(false);
   const navigate = useNavigate();
 
@@ -76,6 +77,7 @@ export default function ManageCompanies() {
     setEditDesc(company.description || '');
     setEditEmail(company.email || '');
     setEditPhone(company.phone || '');
+    setEditSlug(company.slug || '');
     setEditOpen(true);
   };
 
@@ -83,13 +85,17 @@ export default function ManageCompanies() {
     if (!editName.trim()) return;
     setEditLoading(true);
     try {
-      const newSlug = editName.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+      const finalSlug = (editSlug.trim() || editName.trim())
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '');
+
       await updateDoc(doc(db, 'companies', editingCompany.id), {
         name: editName.trim(),
         description: editDesc.trim(),
         email: editEmail.trim(),
         phone: editPhone.trim(),
-        slug: newSlug,
+        slug: finalSlug,
       });
       setToast({ open: true, message: 'Company updated', severity: 'success' });
       setEditOpen(false);
@@ -287,6 +293,19 @@ export default function ManageCompanies() {
             required
             value={editName}
             onChange={(e) => setEditName(e.target.value)}
+            sx={{ mb: 2 }}
+          />
+          <TextField
+            label="URL Slug"
+            fullWidth
+            required
+            value={editSlug}
+            onChange={(e) => setEditSlug(e.target.value)}
+            placeholder="e.g. company-name"
+            helperText="The unique identifier used in the URL"
+            InputProps={{
+              startAdornment: <InputAdornment position="start">/</InputAdornment>,
+            }}
             sx={{ mb: 2 }}
           />
           <Box sx={{ display: 'flex', gap: 2, mb: 2, flexDirection: { xs: 'column', sm: 'row' } }}>

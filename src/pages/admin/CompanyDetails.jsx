@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Card, CardContent, Button, TextField, IconButton,
   Grid, Dialog, DialogTitle, DialogContent, DialogActions, Chip, InputAdornment,
-  CircularProgress, Skeleton, Divider, Tooltip,
+  CircularProgress, Skeleton, Divider, Tooltip, FormControl, InputLabel, Select, MenuItem
 } from '@mui/material';
 import {
   doc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp,
@@ -61,6 +61,8 @@ export default function CompanyDetails() {
   const [currentId, setCurrentId] = useState(null);
   const [form, setForm] = useState(EMPTY_FORM);
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
+  const [themeForm, setThemeForm] = useState({ backgroundColor: '#121212', textColor: '#ffffff', buttonStyle: 'outlined', cardStyle: 'glass' });
+  const [savingTheme, setSavingTheme] = useState(false);
 
   const setField = (k, v) => setForm(f => ({ ...f, [k]: v }));
   const closeToast = () => setToast(t => ({ ...t, open: false }));
@@ -68,8 +70,20 @@ export default function CompanyDetails() {
   useEffect(() => {
     (async () => {
       const snap = await getDoc(doc(db, 'companies', id));
-      if (snap.exists()) setCompany({ id: snap.id, ...snap.data() });
-      else navigate('/admin');
+      if (snap.exists()) {
+        const data = snap.data();
+        setCompany({ id: snap.id, ...data });
+        if (data.theme) {
+          setThemeForm({
+            backgroundColor: data.theme.backgroundColor || '#121212',
+            textColor: data.theme.textColor || '#ffffff',
+            buttonStyle: data.theme.buttonStyle || 'outlined',
+            cardStyle: data.theme.cardStyle || 'glass',
+          });
+        }
+      } else {
+        navigate('/admin');
+      }
     })();
 
     return onSnapshot(collection(db, `companies/${id}/links`), snap => {
@@ -109,6 +123,18 @@ export default function CompanyDetails() {
       setToast({ open: true, message: 'Error saving link.', severity: 'error' });
     }
     setSaving(false);
+  };
+
+  const handleSaveTheme = async () => {
+    setSavingTheme(true);
+    try {
+      await updateDoc(doc(db, 'companies', id), { theme: themeForm });
+      setToast({ open: true, message: 'Theme updated!', severity: 'success' });
+    } catch (err) {
+      console.error(err);
+      setToast({ open: true, message: 'Error saving theme.', severity: 'error' });
+    }
+    setSavingTheme(false);
   };
 
   const handleDelete = async (linkId) => {
@@ -189,6 +215,81 @@ export default function CompanyDetails() {
                 Public page
               </Button>
             </Box>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Theme Settings */}
+      {company && (
+        <Card sx={{ mb: 3 }}>
+          <CardContent sx={{ p: 2.5 }}>
+            <Typography variant="subtitle1" fontWeight={700} sx={{ mb: 2 }}>
+              Page Theme
+            </Typography>
+            <Grid container spacing={2} alignItems="center">
+              <Grid item xs={12} sm={4} minWidth={'200px'}>
+                <TextField
+                  label="Background Color"
+                  type="color"
+                  fullWidth
+                  size="small"
+                  value={themeForm.backgroundColor}
+                  onChange={(e) => setThemeForm({ ...themeForm, backgroundColor: e.target.value })}
+                  sx={{ '& input': { p: 0.5, height: 40, cursor: 'pointer' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={4} minWidth={'200px'}>
+                <TextField
+                  label="Text Color"
+                  type="color"
+                  fullWidth
+                  size="small"
+                  value={themeForm.textColor}
+                  onChange={(e) => setThemeForm({ ...themeForm, textColor: e.target.value })}
+                  sx={{ '& input': { p: 0.5, height: 40, cursor: 'pointer' } }}
+                />
+              </Grid>
+              <Grid item xs={12} sm={6} md={3} minWidth={'200px'}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Button Style</InputLabel>
+                  <Select
+                    value={themeForm.buttonStyle}
+                    label="Button Style"
+                    onChange={(e) => setThemeForm({ ...themeForm, buttonStyle: e.target.value })}
+                  >
+                    <MenuItem value="outlined">Outlined</MenuItem>
+                    <MenuItem value="contained">Solid</MenuItem>
+                    <MenuItem value="text">Ghost</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={6} md={3} minWidth={'200px'}>
+                <FormControl fullWidth size="small">
+                  <InputLabel>Card Style</InputLabel>
+                  <Select
+                    value={themeForm.cardStyle}
+                    label="Card Style"
+                    onChange={(e) => setThemeForm({ ...themeForm, cardStyle: e.target.value })}
+                  >
+                    <MenuItem value="glass">Glass</MenuItem>
+                    <MenuItem value="solid">Solid</MenuItem>
+                    <MenuItem value="transparent">Transparent</MenuItem>
+                  </Select>
+                </FormControl>
+              </Grid>
+              <Grid item xs={12} sm={12} md={4} sx={{ mt: { xs: 2, md: 0 } }}>
+                <Button
+                  variant="contained"
+                  fullWidth
+                  onClick={handleSaveTheme}
+                  disabled={savingTheme}
+                  startIcon={savingTheme ? <CircularProgress size={14} color="inherit" /> : null}
+                  sx={{ height: 40 }}
+                >
+                  {savingTheme ? 'Saving...' : 'Save Theme'}
+                </Button>
+              </Grid>
+            </Grid>
           </CardContent>
         </Card>
       )}

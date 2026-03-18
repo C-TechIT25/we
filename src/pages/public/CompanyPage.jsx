@@ -91,7 +91,10 @@ export default function CompanyPage() {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', pb: 10, position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{
+      minHeight: '100vh', pb: 10, position: 'relative', overflow: 'hidden',
+      ...(company?.theme?.backgroundColor && { backgroundColor: company.theme.backgroundColor }),
+    }}>
 
       {/* Ambient blobs */}
       <Box sx={{
@@ -175,9 +178,13 @@ export default function CompanyPage() {
                 sx={{
                   fontSize: { xs: '1.45rem', sm: '2.1rem' },
                   letterSpacing: '-0.02em',
-                  background: 'linear-gradient(135deg,#fff 0%,#d4d4d8 55%,#a1a1aa 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
+                  ...(company?.theme?.textColor ? {
+                    color: company.theme.textColor,
+                  } : {
+                    background: 'linear-gradient(135deg,#fff 0%,#d4d4d8 55%,#a1a1aa 100%)',
+                    WebkitBackgroundClip: 'text',
+                    WebkitTextFillColor: 'transparent',
+                  }),
                   mb: 1.5,
                   px: { xs: 1, sm: 0 },
                   wordBreak: 'break-word',
@@ -190,8 +197,9 @@ export default function CompanyPage() {
               {company.description && (
                 <Typography
                   variant="body1"
-                  color="text.secondary"
+                  color={company?.theme?.textColor ? undefined : 'text.secondary'}
                   sx={{
+                    ...(company?.theme?.textColor && { color: company.theme.textColor, opacity: 0.8 }),
                     maxWidth: { xs: '100%', sm: 650 },
                     textAlign: 'center',
                     lineHeight: 1.75,
@@ -209,24 +217,38 @@ export default function CompanyPage() {
                 <Box sx={{ display: 'flex', gap: { xs: 1.5, sm: 2 }, justifyContent: 'center', mt: 2.5, flexWrap: 'wrap' }}>
                   {company.email && (
                     <Button
-                      variant="outlined"
+                      variant={company?.theme?.buttonStyle || 'outlined'}
                       size="small"
                       startIcon={<MuiIcons.Email />}
                       href={`mailto:${company.email}`}
-                      sx={{ borderRadius: 6, textTransform: 'none', color: '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)', px: 2, '&:hover': { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } }}
+                      sx={{
+                        borderRadius: 6, textTransform: 'none',
+                        ...(company?.theme?.buttonStyle !== 'contained' ? { color: company?.theme?.textColor || '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)' } : { bgcolor: 'rgba(255,255,255,1)', color: '#000' }),
+                        px: 2,
+                        '&:hover': {
+                          ...(company?.theme?.buttonStyle !== 'contained' ? { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } : { bgcolor: 'rgba(255,255,255,0.85)' })
+                        }
+                      }}
                     >
                       Email
                     </Button>
                   )}
                   {company.phone && (
                     <Button
-                      variant="outlined"
+                      variant={company?.theme?.buttonStyle || 'outlined'}
                       size="small"
                       startIcon={<MuiIcons.Phone />}
                       href={`tel:${company.phone}`}
-                      sx={{ borderRadius: 6, textTransform: 'none', color: '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)', px: 2, '&:hover': { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } }}
+                      sx={{
+                        borderRadius: 6, textTransform: 'none',
+                        ...(company?.theme?.buttonStyle !== 'contained' ? { color: company?.theme?.textColor || '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)' } : { bgcolor: 'rgba(255,255,255,1)', color: '#000' }),
+                        px: 2,
+                        '&:hover': {
+                          ...(company?.theme?.buttonStyle !== 'contained' ? { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } : { bgcolor: 'rgba(255,255,255,0.85)' })
+                        }
+                      }}
                     >
-                      Phone No
+                      Call
                     </Button>
                   )}
                 </Box>
@@ -258,10 +280,13 @@ export default function CompanyPage() {
                   <Card
                     className="lift"
                     sx={{
-                      background: link.background,
-                      backdropFilter: 'blur(20px)',
-                      WebkitBackdropFilter: 'blur(20px)',
-                      border: '1px solid rgba(255,255,255,0.1)',
+                      background:
+                        company?.theme?.cardStyle === 'solid' ? (link.background || 'rgba(255,255,255,0.1)') :
+                        company?.theme?.cardStyle === 'transparent' ? 'transparent' :
+                        (link.background || 'rgba(255,255,255,0.05)'),
+                      backdropFilter: company?.theme?.cardStyle === 'transparent' ? 'none' : 'blur(20px)',
+                      WebkitBackdropFilter: company?.theme?.cardStyle === 'transparent' ? 'none' : 'blur(20px)',
+                      border: company?.theme?.cardStyle === 'transparent' ? 'none' : '1px solid rgba(255,255,255,0.1)',
                       borderRadius: { xs: 3, sm: 3.5 },
                       overflow: 'hidden',
                       height: '100%',
