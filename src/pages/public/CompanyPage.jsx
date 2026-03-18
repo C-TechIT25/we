@@ -215,7 +215,7 @@ export default function CompanyPage() {
                       href={`mailto:${company.email}`}
                       sx={{ borderRadius: 6, textTransform: 'none', color: '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)', px: 2, '&:hover': { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } }}
                     >
-                      {company.email}
+                      Email
                     </Button>
                   )}
                   {company.phone && (
@@ -226,7 +226,7 @@ export default function CompanyPage() {
                       href={`tel:${company.phone}`}
                       sx={{ borderRadius: 6, textTransform: 'none', color: '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)', px: 2, '&:hover': { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } }}
                     >
-                      {company.phone}
+                      Phone No
                     </Button>
                   )}
                 </Box>
