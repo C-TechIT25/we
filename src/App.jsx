@@ -37,6 +37,26 @@ function App() {
     return <Navigate to="/login" replace />;
   };
 
+  // Wrapper for company page to enforce domain restrictions
+  const RestrictedCompanyPage = () => {
+    const { company_name } = useParams();
+    const currentHostname = window.location.hostname;
+    const allowedCompany = domainMap[currentHostname];
+
+    // If on a restricted domain
+    if (allowedCompany) {
+      // If the user tries to access the correct company via its slug, redirect to root for a cleaner URL
+      if (company_name === allowedCompany) {
+        return <Navigate to="/" replace />;
+      }
+      // If the user tries to access a DIFFERENT company, block them by redirecting to the domain's root
+      return <Navigate to="/" replace />;
+    }
+
+    // Normal behavior for other domains (e.g., localhost)
+    return <CompanyPage />;
+  };
+
   return (
     <Routes>
       <Route path="/login" element={<LoginRedirect />} />
@@ -49,7 +69,7 @@ function App() {
       </Route>
 
       {/* Public Routes */}
-      <Route path="/:company_name" element={<CompanyPage />} />
+      <Route path="/:company_name" element={<RestrictedCompanyPage />} />
       
       {/* Default Fallback */}
       <Route path="/" element={<Home />} />
