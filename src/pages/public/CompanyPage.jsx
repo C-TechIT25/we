@@ -41,8 +41,9 @@ function HeroSkeleton() {
   );
 }
 
-export default function CompanyPage() {
+export default function CompanyPage({ companySlug }) {
   const { company_name } = useParams();
+  const slug = companySlug || company_name;
   const [company, setCompany] = useState(null);
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -50,10 +51,14 @@ export default function CompanyPage() {
 
   useEffect(() => {
     let unsubLinks = () => { };
+    if (!slug) {
+      setLoading(false);
+      return;
+    }
     (async () => {
       try {
         const snap = await getDocs(
-          query(collection(db, 'companies'), where('slug', '==', company_name))
+          query(collection(db, 'companies'), where('slug', '==', slug))
         );
         if (snap.empty) { setError('not_found'); setLoading(false); return; }
         const comp = { id: snap.docs[0].id, ...snap.docs[0].data() };
@@ -70,7 +75,7 @@ export default function CompanyPage() {
       }
     })();
     return () => unsubLinks();
-  }, [company_name]);
+  }, [slug]);
 
   // Resolve local assets based on the company slug
   const assets = company ? getCompanyAssets(company.slug) : null;

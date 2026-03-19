@@ -10,6 +10,12 @@ import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
 import LoadingSpinner from './components/LoadingSpinner';
 
+// Domain mapping for specific companies
+const domainMap = {
+  'links.preconstructurals.com': 'precon-structurals',
+  'links.ctechengineering.in': 'c-tech-engineering',
+};
+
 function App() {
   const { currentUser } = useAuth();
   
@@ -17,6 +23,18 @@ function App() {
   const LoginRedirect = () => {
     if (currentUser) return <Navigate to="/admin" replace />;
     return <Login />;
+  };
+
+  // component to handle the root path based on domain
+  const Home = () => {
+    const currentHostname = window.location.hostname;
+    const defaultCompany = domainMap[currentHostname];
+    
+    if (defaultCompany) {
+      return <CompanyPage companySlug={defaultCompany} />;
+    }
+    
+    return <Navigate to="/login" replace />;
   };
 
   return (
@@ -34,7 +52,7 @@ function App() {
       <Route path="/:company_name" element={<CompanyPage />} />
       
       {/* Default Fallback */}
-      <Route path="/" element={<Navigate to="/login" replace />} />
+      <Route path="/" element={<Home />} />
     </Routes>
   );
 }
