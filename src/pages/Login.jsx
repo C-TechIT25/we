@@ -43,8 +43,8 @@ export default function Login() {
       }}
     >
       {/* Ambient blobs */}
-      <Box sx={{ position: 'fixed', top: '-20%', left: '-10%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.2) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
-      <Box sx={{ position: 'fixed', bottom: '-10%', right: '-10%', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle, rgba(255, 255, 255, 0.15) 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <Box sx={{ position: 'fixed', top: '-20%', left: '-10%', width: '50vw', height: '50vw', borderRadius: '50%', background: 'radial-gradient(circle, #eff5ff 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
+      <Box sx={{ position: 'fixed', bottom: '-10%', right: '-10%', width: '40vw', height: '40vw', borderRadius: '50%', background: 'radial-gradient(circle, #eff5ff 0%, transparent 70%)', pointerEvents: 'none', zIndex: 0 }} />
 
       <Box
         component="form"
@@ -54,12 +54,12 @@ export default function Login() {
           maxWidth: 420,
           position: 'relative',
           zIndex: 1,
-          background: 'rgba(255,255,255,0.04)',
+          background: '#eff5ff',
           backdropFilter: 'blur(24px)',
           WebkitBackdropFilter: 'blur(24px)',
-          border: '1px solid rgba(255,255,255,0.09)',
+          border: '1px solid #eff5ff',
           borderRadius: { xs: 4, sm: 5 },
-          boxShadow: '0 24px 64px rgba(0,0,0,0.4)',
+          boxShadow: '0 24px 64px rgba(23,32,51,0.08)',
           p: { xs: 3, sm: 4.5 },
         }}
       >
@@ -70,7 +70,7 @@ export default function Login() {
               width: 64, height: 64, borderRadius: 3,
               background: 'linear-gradient(135deg, #ffffff 0%, #d4d4d8 100%)',
               display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 8px 24px rgba(255,255,255,0.25)',
+              boxShadow: '0 8px 24px #eff5ff',
             }}
           >
             <Lock sx={{ fontSize: 28, color: '#000' }} />
@@ -78,7 +78,7 @@ export default function Login() {
         </Box>
 
         <Typography variant="h4" fontWeight={800} textAlign="center" mb={0.5}
-          sx={{ background: 'linear-gradient(135deg,#fff,#a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+          sx={{ color: 'text.primary' }}
         >
           Welcome to C-Tech
         </Typography>
@@ -98,7 +98,7 @@ export default function Login() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Email sx={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                <Email sx={{ fontSize: 18, color: '#64748b' }} />
               </InputAdornment>
             ),
           }}
@@ -117,7 +117,7 @@ export default function Login() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <Lock sx={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                <Lock sx={{ fontSize: 18, color: '#64748b' }} />
               </InputAdornment>
             ),
             endAdornment: (

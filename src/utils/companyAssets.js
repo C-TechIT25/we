@@ -3,7 +3,7 @@
  * Maps company slugs to their local logo and header images from the assets folder.
  * Add additional companies here as needed.
  */
-import ctechlogo from '../assets/ctechlogo.png';
+import ctechlogo from '../assets/ctechlogo.jpg';
 import preconlogo from '../assets/preconlogo.png';
 import ctechbg from '../assets/ctechbg.png';
 import preconbg from '../assets/preconbg.jpg';

@@ -22,15 +22,15 @@ body {
   font-family: 'Poppins', system-ui, sans-serif;
   line-height: 1.6;
   font-weight: 400;
-  color-scheme: dark;
-  color: rgba(255, 255, 255, 0.9);
+  color-scheme: light;
+  color: #172033;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
 }
 
 body {
-  background: #000000;
+  background: #ffffff;
 
   background-attachment: fixed;
 }
@@ -47,8 +47,8 @@ body {
   background: rgba(255, 255, 255, 0.035);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.07);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(23, 32, 51, 0.10);
+  box-shadow: 0 8px 32px rgba(23, 32, 51, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 
 /* ── Lift on hover ── */
@@ -59,12 +59,12 @@ body {
 
 .lift:hover {
   transform: translateY(-5px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+  box-shadow: 0 20px 50px rgba(23, 32, 51, 0.08) !important;
 }
 
 /* ── Gradient text ── */
 .grad {
-  background: linear-gradient(135deg, #ffffff 0%, #d4d4d8 50%, #a1a1aa 100%);
+  background: linear-gradient(135deg, #172033 0%, #3673FC 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -138,14 +138,14 @@ body {
 
 /* ── Image upload zone ── */
 .upload-zone {
-  border: 2px dashed rgba(255, 255, 255, 0.35);
+  border: 2px dashed #cbd5e1;
   border-radius: 16px;
   transition: border-color 0.2s ease, background 0.2s ease;
   cursor: pointer;
 }
 
 .upload-zone:hover {
-  border-color: rgba(255, 255, 255, 0.7);
+  border-color: #3673FC;
   background: rgba(255, 255, 255, 0.06);
 }
 
@@ -159,10 +159,12 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.12);
+  background: #cbd5e1;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: #94a3b8;
 }
+:focus-visible { outline: 3px solid #3673FC; outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .lift, .anim-float, .anim-float-rev, .anim-pulse { animation: none; transition: none; } }

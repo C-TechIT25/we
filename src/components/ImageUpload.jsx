@@ -55,7 +55,7 @@ export default function ImageUpload({ value, onChange, label = 'Click or drag to
         alignItems: 'center',
         justifyContent: 'center',
         overflow: 'hidden',
-        background: dragging ? 'rgba(99,102,241,0.12)' : 'rgba(255,255,255,0.025)',
+        background: dragging ? '#eaf1ff' : 'rgba(255,255,255,0.025)',
         transition: 'all 0.2s ease',
         mx: isBanner ? 0 : 'auto',
         cursor: 'pointer',
@@ -94,7 +94,7 @@ export default function ImageUpload({ value, onChange, label = 'Click or drag to
         </>
       ) : (
         <Box sx={{ textAlign: 'center', px: 1, pointerEvents: 'none' }}>
-          <UploadIcon sx={{ fontSize: isBanner ? 30 : 26, color: 'rgba(129,140,248,0.6)', mb: 0.5 }} />
+          <UploadIcon sx={{ fontSize: isBanner ? 30 : 26, color: '#3673FC', mb: 0.5 }} />
           {isBanner && (
             <Typography variant="caption" color="text.secondary" sx={{ display: 'block', lineHeight: 1.3 }}>
               {label}

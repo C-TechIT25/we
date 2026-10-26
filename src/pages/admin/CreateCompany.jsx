@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box, Card, CardContent, TextField, Button, CircularProgress,
-  Typography, InputAdornment, Divider,
+  Typography, InputAdornment,
 } from '@mui/material';
 import {
   AddBusiness as AddBusinessIcon,
@@ -58,12 +58,12 @@ export default function CreateCompany() {
   };
 
   return (
-    <Box sx={{ maxWidth: 560, mx: 'auto' }}>
+    <Box sx={{ maxWidth: 720, mx: 'auto' }}>
       {/* Page heading */}
       <Box sx={{ mb: 4 }}>
         <Typography
           variant="h4" fontWeight={800}
-          sx={{ background: 'linear-gradient(135deg,#fff,#a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+          sx={{ color: 'text.primary' }}
         >
           Create Company
         </Typography>
@@ -74,6 +74,8 @@ export default function CreateCompany() {
 
       <Card>
         <CardContent sx={{ p: { xs: 2.5, sm: 3.5 } }}>
+          <Typography variant="h6" mb={0.5}>Company information</Typography>
+          <Typography variant="body2" color="text.secondary" mb={3}>Add the details people will see on your public profile.</Typography>
           <form onSubmit={handleSubmit}>
             {/* Company Name */}
             <TextField
@@ -85,7 +87,7 @@ export default function CreateCompany() {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <BusinessIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                    <BusinessIcon sx={{ fontSize: 18, color: '#64748b' }} />
                   </InputAdornment>
                 ),
               }}
@@ -98,12 +100,12 @@ export default function CreateCompany() {
                 sx={{
                   display: 'flex', alignItems: 'center', gap: 0.8,
                   mb: 2.5, px: 1.5, py: 1,
-                  background: 'rgba(255,255,255,0.08)',
-                  border: '1px solid rgba(255,255,255,0.2)', borderRadius: 2,
+                  background: '#eff5ff',
+                  border: '1px solid #eff5ff', borderRadius: 2,
                 }}
               >
-                <LinkIcon sx={{ fontSize: 14, color: '#d4d4d8' }} />
-                <Typography variant="caption" sx={{ color: '#f4f4f5', fontFamily: 'monospace', wordBreak: 'break-all' }}>
+                <LinkIcon sx={{ fontSize: 14, color: '#64748b' }} />
+                <Typography variant="caption" sx={{ color: '#334155', fontFamily: 'monospace', wordBreak: 'break-all' }}>
                   yoursite.com/<strong>{slug}</strong>
                 </Typography>
               </Box>

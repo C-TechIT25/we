@@ -9,7 +9,6 @@ import {
   GridView as GridViewIcon,
   LogoutRounded as LogoutIcon,
   LinkRounded as LinkRoundedIcon,
-  Close as CloseIcon,
 } from '@mui/icons-material';
 import { Outlet, useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
@@ -37,7 +36,7 @@ export default function DashboardLayout() {
       ? location.pathname === '/admin' || location.pathname.startsWith('/admin/company/')
       : location.pathname === path;
 
-  const DrawerContent = () => (
+  const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', pt: 1, pb: 2 }}>
       {/* Brand */}
       <Box sx={{ px: 2.5, py: 2, display: 'flex', alignItems: 'center', gap: 1.5 }}>
@@ -45,17 +44,18 @@ export default function DashboardLayout() {
           width: 38, height: 38, borderRadius: 2.5,
           background: 'linear-gradient(135deg,#ffffff,#d4d4d8)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
-          boxShadow: '0 4px 12px rgba(255,255,255,0.25)', flexShrink: 0,
+          boxShadow: '0 4px 12px #eff5ff', flexShrink: 0,
         }}>
           <LinkRoundedIcon sx={{ fontSize: 18, color: '#000' }} />
         </Box>
-        <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#fff', letterSpacing: '-0.01em', lineHeight: 1 }}>
+        <Typography variant="subtitle1" fontWeight={700} sx={{ color: '#172033', letterSpacing: '-0.01em', lineHeight: 1 }}>
           C-Tech Profile
         </Typography>
       </Box>
 
       <Divider sx={{ mx: 2, mb: 2 }} />
 
+<Typography variant="overline" sx={{ px: 3.5, color: 'text.secondary', letterSpacing: 1.5 }}>Workspace</Typography>
       {/* Nav Items */}
       <List sx={{ px: 1.5, flexGrow: 1 }}>
         {NAV.map((item) => {
@@ -63,14 +63,16 @@ export default function DashboardLayout() {
           return (
             <ListItem key={item.path} disablePadding>
               <ListItemButton
+                selected={active}
+                aria-current={active ? 'page' : undefined}
                 onClick={() => { navigate(item.path); setMobileOpen(false); }}
                 sx={{
                   borderRadius: 2.5,
                   px: 2,
-                  color: active ? '#ffffff' : 'rgba(255,255,255,0.5)',
-                  '& .MuiListItemIcon-root': { color: active ? '#ffffff' : 'rgba(255,255,255,0.28)', minWidth: 36 },
-                  '&:hover': { background: 'rgba(255,255,255,0.09)', color: '#ffffff' },
-                  background: active ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  color: active ? '#3673FC' : '#64748b',
+                  '& .MuiListItemIcon-root': { color: active ? '#3673FC' : '#64748b', minWidth: 36 },
+                  '&:hover': { background: '#eff5ff', color: '#3673FC' },
+                  background: active ? '#eff5ff' : 'transparent',
                   mb: 0.5, py: 1.2,
                 }}
               >
@@ -79,7 +81,7 @@ export default function DashboardLayout() {
                   primary={item.label}
                   primaryTypographyProps={{ fontSize: '0.9rem', fontWeight: active ? 700 : 500 }}
                 />
-                {active && <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#ffffff', flexShrink: 0 }} />}
+                {active && <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: '#3673FC', flexShrink: 0 }} />}
               </ListItemButton>
             </ListItem>
           );
@@ -90,20 +92,20 @@ export default function DashboardLayout() {
       <Box sx={{ px: 1.5, mt: 'auto' }}>
         <Divider sx={{ mb: 2 }} />
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, px: 1, mb: 1.5 }}>
-          <Avatar sx={{ width: 32, height: 32, bgcolor: 'rgba(255,255,255,0.2)', color: '#fff', fontSize: 13, fontWeight: 700 }}>
+          <Avatar sx={{ width: 32, height: 32, bgcolor: '#eff5ff', color: '#172033', fontSize: 13, fontWeight: 700 }}>
             {currentUser?.email?.[0]?.toUpperCase() || 'A'}
           </Avatar>
           <Box sx={{ overflow: 'hidden', flex: 1 }}>
             <Typography variant="body2" fontWeight={600} noWrap sx={{ maxWidth: 120 }}>{currentUser?.email?.split('@')[0]}</Typography>
-            <Typography variant="caption" sx={{ display: 'block', color: '#d4d4d8', mt: -0.5 }}>Admin</Typography>
+            <Typography variant="caption" sx={{ display: 'block', color: '#64748b', mt: -0.5 }}>Admin</Typography>
           </Box>
         </Box>
         <ListItemButton
           onClick={handleLogout}
           sx={{
             borderRadius: 2.5, px: 2, py: 1,
-            color: 'rgba(248,113,113,0.65)',
-            '&:hover': { background: 'rgba(248,113,113,0.08)', color: '#fca5a5' },
+            color: '#b91c1c',
+            '&:hover': { background: 'rgba(248,113,113,0.08)', color: '#991b1b' },
           }}
         >
           <ListItemIcon sx={{ color: 'inherit', minWidth: 34 }}><LogoutIcon fontSize="small" /></ListItemIcon>
@@ -131,6 +133,7 @@ export default function DashboardLayout() {
           <IconButton
             color="inherit"
             edge="start"
+            aria-label="Open navigation"
             onClick={() => setMobileOpen(true)}
             sx={{ display: { sm: 'none' }, mr: 0.5 }}
           >
@@ -143,15 +146,15 @@ export default function DashboardLayout() {
             noWrap
             sx={{ flexGrow: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}
           >
-            Admin Dashboard
+            {location.pathname === '/admin/create' ? 'New company' : location.pathname.startsWith('/admin/company/') ? 'Company workspace' : 'Overview'}
           </Typography>
 
           <Chip
             label="Admin"
             size="small"
             sx={{
-              bgcolor: 'rgba(99,102,241,0.18)',
-              color: '#a5b4fc',
+              bgcolor: '#eaf1ff',
+              color: '#2456c4',
               fontWeight: 600,
               fontSize: '0.7rem',
               display: { xs: 'none', sm: 'flex' },
@@ -179,7 +182,7 @@ export default function DashboardLayout() {
             '& .MuiDrawer-paper': { width: DRAWER_W, boxSizing: 'border-box' },
           }}
         >
-          <DrawerContent />
+          {drawerContent}
         </Drawer>
 
         {/* Permanent (desktop) */}
@@ -191,7 +194,7 @@ export default function DashboardLayout() {
           }}
           open
         >
-          <DrawerContent />
+          {drawerContent}
         </Drawer>
       </Box>
 
@@ -204,10 +207,10 @@ export default function DashboardLayout() {
           width: { xs: '100%', sm: `calc(100% - ${DRAWER_W}px)` },
           mt: { xs: '58px', sm: '66px' }, /* match Toolbar minHeight */
           p: { xs: 2, sm: 3, md: 4 },
-          minHeight: '100vh',
+          minHeight: { xs: 'calc(100vh - 58px)', sm: 'calc(100vh - 66px)' },
         }}
       >
-        <Outlet />
+        <Box sx={{ maxWidth: 1280, mx: 'auto' }}><Outlet /></Box>
       </Box>
     </Box>
   );

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {
-  Box, Typography, Grid, Card, CardActionArea, CardContent,
+  Box, Typography, Grid, Card, CardActionArea,
   Button, IconButton, Skeleton, Chip, InputAdornment, TextField,
   Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress,
 } from '@mui/material';
@@ -21,7 +21,7 @@ function CompanySkeleton() {
   return (
     <Grid container spacing={2.5}>
       {[...Array(3)].map((_, i) => (
-        <Grid item xs={12} sm={6} md={4} key={i}>
+        <Grid size={{ xs: 12, md: 6, lg: 4 }} key={i}>
           <Card sx={{ p: 2.5, height: 160 }}>
             <Skeleton variant="rounded" width="60%" height={22} sx={{ mb: 1.5 }} />
             <Skeleton variant="text" height={16} sx={{ mb: 0.5 }} />
@@ -125,7 +125,7 @@ export default function ManageCompanies() {
       >
         <Box sx={{ flexGrow: 1 }}>
           <Typography variant="h4" fontWeight={800}
-            sx={{ background: 'linear-gradient(135deg,#fff,#a1a1aa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}
+            sx={{ color: 'text.primary' }}
           >
             Companies
           </Typography>
@@ -143,8 +143,13 @@ export default function ManageCompanies() {
         </Button>
       </Box>
 
+      <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, p: 2.5, mb: 3, bgcolor: '#f8f9fc', border: '1px solid #e8ecf2', borderRadius: 3 }}>
+        <BusinessIcon sx={{ color: 'primary.main', fontSize: 30 }} />
+        <Box><Typography variant="h5">{loading ? '?' : companies.length}</Typography>
+        <Typography variant="body2" color="text.secondary">Total companies</Typography></Box>
+      </Box>
       {/* Search */}
-      {!loading && companies.length > 3 && (
+      {(
         <TextField
           size="small"
           placeholder="Search companies…"
@@ -153,11 +158,11 @@ export default function ManageCompanies() {
           InputProps={{
             startAdornment: (
               <InputAdornment position="start">
-                <SearchIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.3)' }} />
+                <SearchIcon sx={{ fontSize: 18, color: '#64748b' }} />
               </InputAdornment>
             ),
           }}
-          sx={{ mb: 3, maxWidth: 320 }}
+          sx={{ mb: 3, width: '100%', maxWidth: 440 }}
         />
       )}
 
@@ -167,13 +172,13 @@ export default function ManageCompanies() {
       ) : filtered.length === 0 ? (
         <Card
           sx={{
-            border: '1px dashed rgba(255,255,255,0.1)',
+            border: '1px dashed #eff5ff',
             background: 'transparent',
             textAlign: 'center',
             py: 6, px: 3,
           }}
         >
-          <BusinessIcon sx={{ fontSize: 48, color: 'rgba(255,255,255,0.15)', mb: 2 }} />
+          <BusinessIcon sx={{ fontSize: 48, color: '#eff5ff', mb: 2 }} />
           <Typography variant="h6" fontWeight={600} color="text.secondary" gutterBottom>
             {search ? 'No matches found' : 'No companies yet'}
           </Typography>
@@ -189,25 +194,25 @@ export default function ManageCompanies() {
       ) : (
         <Grid container spacing={2.5}>
           {filtered.map(company => (
-            <Grid item xs={12} sm={6} md={4} key={company.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={company.id}>
               <Card
                 className="lift"
-                sx={{ height: '100%', position: 'relative', overflow: 'hidden', maxWidth: { xs: '300px', sm: '400px' }, minWidth: { xs: '200px', sm: '400px' } }}
+                sx={{ height: '100%', position: 'relative', overflow: 'hidden', width: '100%' }}
               >
                 {/* top accent bar */}
-                <Box sx={{ height: 3, background: 'linear-gradient(90deg,#ffffff,#a1a1aa)', borderRadius: '20px 20px 0 0' }} />
+                <Box sx={{ height: 3, background: '#b8ceff', borderRadius: '20px 20px 0 0' }} />
                 <CardActionArea
                   onClick={() => navigate(`/admin/company/${company.id}`)}
-                  sx={{ p: 2.5, pb: 1.5, height: 'calc(100% - 3px)', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start' }}
+                  sx={{ p: 2.5, pb: 1.5, minHeight: 180, display: 'flex', flexDirection: 'column', alignItems: 'flex-start', justifyContent: 'flex-start' }}
                 >
                   {/* Icon + Name row */}
                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mb: 1.5, width: '100%' }}>
                     <Box sx={{
                       width: 40, height: 40, borderRadius: 2,
-                      background: 'rgba(255,255,255,0.15)',
+                      background: '#eff5ff',
                       display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
                     }}>
-                      <BusinessIcon sx={{ fontSize: 20, color: '#ffffff' }} />
+                      <BusinessIcon sx={{ fontSize: 20, color: '#3673FC' }} />
                     </Box>
                     <Box sx={{ flex: 1, minWidth: 0 }}>
                       <Typography
@@ -222,8 +227,8 @@ export default function ManageCompanies() {
                         size="small"
                         sx={{
                           fontSize: '0.65rem', height: 18, mt: 0.3,
-                          bgcolor: 'rgba(255,255,255,0.1)',
-                          color: '#d4d4d8',
+                          bgcolor: '#eff5ff',
+                          color: '#64748b',
                           maxWidth: '100%',
                           '& .MuiChip-label': { px: 1, overflow: 'hidden', textOverflow: 'ellipsis' },
                         }}
@@ -248,35 +253,37 @@ export default function ManageCompanies() {
                     {company.description || 'No description provided.'}
                   </Typography>
 
+                </CardActionArea>
                   {/* Footer row */}
-                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
-                    <Typography variant="caption" sx={{ color: '#d4d4d8', display: 'flex', alignItems: 'center', gap: 0.4 }}>
-                      Manage links <ChevronRightIcon sx={{ fontSize: 14 }} />
+                  <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', px: 2.5, py: 1.5, borderTop: '1px solid #eef0f5' }}>
+                    <Typography component="span" variant="caption" sx={{ color: '#64748b', display: 'flex', alignItems: 'center', gap: 0.4 }}>
+                      Company profile <ChevronRightIcon sx={{ fontSize: 14 }} />
                     </Typography>
                     <Box>
                       <IconButton
                         size="small"
+                        aria-label={`Edit ${company.name}`}
                         onClick={(e) => openEdit(company, e)}
                         sx={{
-                          color: 'rgba(255, 255, 255, 1)', mr: 0.5,
-                          '&:hover': { color: '#fff', background: 'rgba(255,255,255,0.1)' },
+                          color: '#64748b', mr: 0.5,
+                          '&:hover': { color: '#172033', background: '#eff5ff' },
                         }}
                       >
                         <EditIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                       <IconButton
                         size="small"
+                        aria-label={`Delete ${company.name}`}
                         onClick={(e) => handleDelete(company.id, e)}
                         sx={{
                           color: 'rgba(255, 0, 0, 1)',
-                          '&:hover': { color: '#ff0000ff', background: 'rgba(255, 0, 0, 1)' },
+                          '&:hover': { color: '#b91c1c', background: '#fef2f2' },
                         }}
                       >
                         <DeleteIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                     </Box>
                   </Box>
-                </CardActionArea>
               </Card>
             </Grid>
           ))}

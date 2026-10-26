@@ -7,6 +7,7 @@ import { collection, query, where, getDocs, onSnapshot } from 'firebase/firestor
 import { db } from '../../firebase/config';
 import * as MuiIcons from '@mui/icons-material';
 import { ArrowForwardIos } from '@mui/icons-material';
+import CtechProfile from '../../components/CtechProfile';
 import { getCompanyAssets } from '../../utils/companyAssets';
 
 /* ── Skeleton for one link row ── */
@@ -14,7 +15,7 @@ function LinkSkeleton() {
   return (
     <Box sx={{ mb: 1.5 }}>
       <Card sx={{ background: 'rgba(255,255,255,0.04)' }}>
-        <Box sx={{ p: { xs: 2, sm: 2.5 }, display: 'flex', alignItems: 'center', gap: 2 }}>
+        <Box sx={{ p: { xs: 1.5, sm: 2.5 }, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: 2 }}>
           <Skeleton variant="rounded" width={52} height={52} sx={{ borderRadius: 2, flexShrink: 0 }} />
           <Box sx={{ flex: 1 }}>
             <Skeleton height={21} width="40%" sx={{ mb: 0.5 }} />
@@ -44,6 +45,8 @@ function HeroSkeleton() {
 export default function CompanyPage({ companySlug }) {
   const { company_name } = useParams();
   const slug = companySlug || company_name;
+  const isCtech = /c-tech|ctech/i.test(slug || '');
+  const isPrecon = /precon/i.test(slug || '');
   const [company, setCompany] = useState(null);
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -98,7 +101,7 @@ export default function CompanyPage({ companySlug }) {
   return (
     <Box sx={{
       minHeight: '100vh', pb: 10, position: 'relative', overflow: 'hidden',
-      ...(company?.theme?.backgroundColor && { backgroundColor: company.theme.backgroundColor }),
+      backgroundColor: (isCtech || isPrecon) ? '#f4f4f7' : (company?.theme?.backgroundColor || '#ffffff'),
     }}>
 
       {/* Ambient blobs */}
@@ -124,6 +127,8 @@ export default function CompanyPage({ companySlug }) {
       {/* ══ HERO ══ */}
       {loading ? (
         <HeroSkeleton />
+      ) : (isCtech || isPrecon) ? (
+        <CtechProfile company={company} logo={assets.logo} isCtech={isCtech} headerColor={isCtech ? '#3673FC' : '#d53b43'} />
       ) : (
         <Box sx={{ position: 'relative', zIndex: 1 }}>
 
@@ -146,7 +151,7 @@ export default function CompanyPage({ companySlug }) {
             {/* Bottom fade to background */}
             <Box sx={{
               position: 'absolute', inset: 0,
-              background: 'linear-gradient(to bottom, rgba(255, 255, 255, 0.08) 0%, rgba(7,11,20,0.5) 55%, rgba(7,11,20,1) 100%)',
+              background: `linear-gradient(to bottom, transparent 0%, ${company?.theme?.backgroundColor || '#ffffff'} 100%)`,
             }} />
           </Box>
 
@@ -179,14 +184,14 @@ export default function CompanyPage({ companySlug }) {
               {/* Company Name */}
               <Typography
                 variant="h3"
-                fontWeight={800}
+                fontWeight={600}
                 sx={{
                   fontSize: { xs: '1.45rem', sm: '2.1rem' },
                   letterSpacing: '-0.02em',
                   ...(company?.theme?.textColor ? {
                     color: company.theme.textColor,
                   } : {
-                    background: 'linear-gradient(135deg,#fff 0%,#d4d4d8 55%,#a1a1aa 100%)',
+                    background: 'linear-gradient(135deg,#172033 0%,#475569 100%)',
                     WebkitBackgroundClip: 'text',
                     WebkitTextFillColor: 'transparent',
                   }),
@@ -228,10 +233,10 @@ export default function CompanyPage({ companySlug }) {
                       href={`mailto:${company.email}`}
                       sx={{
                         borderRadius: 6, textTransform: 'none',
-                        ...(company?.theme?.buttonStyle !== 'contained' ? { color: company?.theme?.textColor || '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)' } : { bgcolor: 'rgba(255,255,255,1)', color: '#000' }),
+                        ...(company?.theme?.buttonStyle !== 'contained' ? { color: company?.theme?.textColor || '#475569', borderColor: 'currentColor' } : { bgcolor: 'rgba(255,255,255,1)', color: '#000' }),
                         px: 2,
                         '&:hover': {
-                          ...(company?.theme?.buttonStyle !== 'contained' ? { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } : { bgcolor: 'rgba(255,255,255,0.85)' })
+                          ...(company?.theme?.buttonStyle !== 'contained' ? { borderColor: 'currentColor', background: 'rgba(100,116,139,0.1)' } : { bgcolor: 'rgba(255,255,255,0.85)' })
                         }
                       }}
                     >
@@ -246,10 +251,10 @@ export default function CompanyPage({ companySlug }) {
                       href={`tel:${company.phone}`}
                       sx={{
                         borderRadius: 6, textTransform: 'none',
-                        ...(company?.theme?.buttonStyle !== 'contained' ? { color: company?.theme?.textColor || '#d4d4d8', borderColor: 'rgba(255,255,255,0.2)' } : { bgcolor: 'rgba(255,255,255,1)', color: '#000' }),
+                        ...(company?.theme?.buttonStyle !== 'contained' ? { color: company?.theme?.textColor || '#475569', borderColor: 'currentColor' } : { bgcolor: 'rgba(255,255,255,1)', color: '#000' }),
                         px: 2,
                         '&:hover': {
-                          ...(company?.theme?.buttonStyle !== 'contained' ? { borderColor: '#fff', color: '#fff', background: 'rgba(255,255,255,0.1)' } : { bgcolor: 'rgba(255,255,255,0.85)' })
+                          ...(company?.theme?.buttonStyle !== 'contained' ? { borderColor: 'currentColor', background: 'rgba(100,116,139,0.1)' } : { bgcolor: 'rgba(255,255,255,0.85)' })
                         }
                       }}
                     >
@@ -266,10 +271,10 @@ export default function CompanyPage({ companySlug }) {
       {/* ══ LINKS ══ */}
       <Container maxWidth="md" sx={{ position: 'relative', zIndex: 2, px: { xs: 2, sm: 3 }, mt: 4 }}>
         {loading ? (
-          <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}><LinkSkeleton /></Grid>
-            <Grid item xs={12} sm={6}><LinkSkeleton /></Grid>
-            <Grid item xs={12} sm={6}><LinkSkeleton /></Grid>
+          <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ maxWidth: { xs: 440, sm: 'none' }, mx: 'auto' }}>
+            <Grid size={{ xs: 12, sm: 6 }}><LinkSkeleton /></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}><LinkSkeleton /></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}><LinkSkeleton /></Grid>
           </Grid>
         ) : links.length === 0 ? (
           <Box sx={{ textAlign: 'center', py: 6 }}>
@@ -277,25 +282,26 @@ export default function CompanyPage({ companySlug }) {
             <Typography variant="body2" color="text.secondary">No links published yet.</Typography>
           </Box>
         ) : (
-          <Grid container spacing={2} justifyContent={'center'}>
+          <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ maxWidth: { xs: 440, sm: 'none' }, mx: 'auto' }} justifyContent={{ xs: 'flex-start', sm: 'center' }}>
             {links.map(link => {
               const Ico = MuiIcons[link.icon] || MuiIcons['Link'];
               return (
-                <Grid item xs={12} sm={6} key={link.id}>
+                <Grid size={{ xs: 12, sm: 6 }} key={link.id}>
                   <Card
                     className="lift"
                     sx={{
                       background:
-                        company?.theme?.cardStyle === 'solid' ? (link.background || 'rgba(255,255,255,0.1)') :
+                        company?.theme?.cardStyle === 'solid' ? (link.background || '#475569') :
                         company?.theme?.cardStyle === 'transparent' ? 'transparent' :
-                        (link.background || 'rgba(255,255,255,0.05)'),
+                        (link.background || '#475569'),
                       backdropFilter: company?.theme?.cardStyle === 'transparent' ? 'none' : 'blur(20px)',
                       WebkitBackdropFilter: company?.theme?.cardStyle === 'transparent' ? 'none' : 'blur(20px)',
                       border: company?.theme?.cardStyle === 'transparent' ? 'none' : '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: { xs: 3, sm: 3.5 },
+                      borderRadius: { xs: 4, sm: 3.5 },
                       overflow: 'hidden',
                       height: '100%',
-                      minWidth: { xs: '300px', sm: '400px' }
+                      color: company?.theme?.cardStyle === 'transparent' || link.background?.includes('rgba(255') ? (company?.theme?.textColor || '#172033') : '#ffffff',
+                      width: '100%'
                     }}
                   >
                     <CardActionArea
@@ -303,11 +309,11 @@ export default function CompanyPage({ companySlug }) {
                       href={link.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      sx={{ p: { xs: 1.75, sm: 2.25 }, display: 'flex', alignItems: 'center', gap: { xs: 1.5, sm: 2 }, height: '100%' }}
+                      sx={{ p: { xs: 1.25, sm: 2.25 }, display: 'flex', flexDirection: 'row', alignItems: 'center', gap: { xs: 1.25, sm: 2 }, height: '100%', minHeight: { xs: 68, sm: 0 }, position: 'relative' }}
                     >
                       {/* Icon */}
                       <Box sx={{
-                        width: { xs: 50, sm: 56 }, height: { xs: 50, sm: 56 },
+                        width: { xs: 38, sm: 56 }, height: { xs: 38, sm: 56 },
                         borderRadius: { xs: 2, sm: 2.5 },
                         background: 'rgba(255,255,255,0.15)',
                         backdropFilter: 'blur(8px)',
@@ -315,24 +321,24 @@ export default function CompanyPage({ companySlug }) {
                         flexShrink: 0, overflow: 'hidden',
                         boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
                       }}>
-                        <Ico sx={{ fontSize: { xs: 26, sm: 28 }, color: '#fff' }} />
+                        <Ico sx={{ fontSize: { xs: 20, sm: 28 }, color: 'inherit' }} />
                       </Box>
 
                       {/* Text */}
-                      <Box sx={{ flex: 1, minWidth: 0 }}>
-                        <Typography variant="subtitle1" fontWeight={700} color="white"
-                          sx={{ lineHeight: 1.25, mb: link.bio ? 0.3 : 0, fontSize: { xs: '0.95rem', sm: '1.02rem' }, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      <Box sx={{ flex: 1, minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
+                        <Typography variant="subtitle1" fontWeight={700} color={company?.theme?.cardStyle === 'transparent' || link.background?.includes('rgba(255') ? (company?.theme?.textColor || '#172033') : 'white'}
+                          sx={{ lineHeight: 1.25, mb: link.bio ? 0.3 : 0, fontSize: { xs: '0.8rem', sm: '1.02rem' }, overflowWrap: 'anywhere', whiteSpace: { xs: 'normal', sm: 'nowrap' }, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {link.name}
                         </Typography>
                         {link.bio && (
                           <Typography variant="body2"
-                            sx={{ color: 'rgba(255,255,255,0.65)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', fontSize: { xs: '0.78rem', sm: '0.84rem' } }}>
+                            sx={{ color: 'inherit', opacity: 0.8, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: { xs: 'normal', sm: 'nowrap' }, overflowWrap: 'anywhere', fontSize: { xs: '0.67rem', sm: '0.84rem' }, lineHeight: 1.5 }}>
                             {link.bio}
                           </Typography>
                         )}
                       </Box>
 
-                      <ArrowForwardIos sx={{ fontSize: { xs: 12, sm: 13 }, color: 'rgba(255,255,255,0.35)', flexShrink: 0 }} />
+                      <ArrowForwardIos sx={{ fontSize: { xs: 10, sm: 13 }, color: 'inherit', flexShrink: 0, position: 'static' }} />
                     </CardActionArea>
                   </Card>
                 </Grid>
