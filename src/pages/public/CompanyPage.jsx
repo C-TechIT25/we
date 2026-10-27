@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import ModernSocialHub from '../../components/ModernSocialHub';
+import { gsap } from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box, Typography, Container, Card, CardActionArea, Skeleton, Grid, Button,
@@ -9,6 +12,8 @@ import * as MuiIcons from '@mui/icons-material';
 import { ArrowForwardIos } from '@mui/icons-material';
 import CtechProfile from '../../components/CtechProfile';
 import { getCompanyAssets } from '../../utils/companyAssets';
+
+gsap.registerPlugin(ScrollTrigger);
 
 /* ── Skeleton for one link row ── */
 function LinkSkeleton() {
@@ -51,6 +56,24 @@ export default function CompanyPage({ companySlug }) {
   const [links, setLinks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const pageRef = useRef(null);
+  useLayoutEffect(() => {
+    if (loading || error || company?.theme?.profileStyle === 'modern') return;
+    const motion = gsap.matchMedia();
+    motion.add('(prefers-reduced-motion: no-preference)', () => {
+      const context = gsap.context(() => {
+        gsap.utils.toArray('[data-link-reveal]').forEach((card) => {
+          gsap.from(card, {
+            y: 24, autoAlpha: 0, duration: 0.65, ease: 'power2.out',
+            scrollTrigger: { trigger: card, start: 'top 94%', once: true },
+            clearProps: 'all',
+          });
+        });
+      }, pageRef);
+      return () => context.revert();
+    });
+    return () => motion.revert();
+  }, [loading, error, links, company?.theme?.profileStyle]);
 
   useEffect(() => {
     let unsubLinks = () => { };
@@ -98,8 +121,10 @@ export default function CompanyPage({ companySlug }) {
     </Box>
   );
 
+  if (!loading && company?.theme?.profileStyle === 'modern') return <ModernSocialHub company={company} logo={assets.logo} links={links} />;
+
   return (
-    <Box sx={{
+    <Box ref={pageRef} sx={{
       minHeight: '100vh', pb: 10, position: 'relative', overflow: 'hidden',
       backgroundColor: (isCtech || isPrecon) ? '#f4f4f7' : (company?.theme?.backgroundColor || '#ffffff'),
     }}>
@@ -127,8 +152,8 @@ export default function CompanyPage({ companySlug }) {
       {/* ══ HERO ══ */}
       {loading ? (
         <HeroSkeleton />
-      ) : (isCtech || isPrecon) ? (
-        <CtechProfile company={company} logo={assets.logo} isCtech={isCtech} headerColor={isCtech ? '#3673FC' : '#d53b43'} />
+      ) : (isCtech || isPrecon || company?.theme?.profileStyle) ? (
+        <CtechProfile profileStyle={company.theme?.profileStyle} headerImage={assets.header} company={company} logo={assets.logo} isCtech={isCtech} headerColor={isCtech ? '#3673FC' : '#d53b43'} />
       ) : (
         <Box sx={{ position: 'relative', zIndex: 1 }}>
 
@@ -286,7 +311,7 @@ export default function CompanyPage({ companySlug }) {
             {links.map(link => {
               const Ico = MuiIcons[link.icon] || MuiIcons['Link'];
               return (
-                <Grid size={{ xs: 12, sm: 6 }} key={link.id}>
+                <Grid data-link-reveal size={{ xs: 12, sm: 6 }} key={link.id}>
                   <Card
                     className="lift"
                     sx={{

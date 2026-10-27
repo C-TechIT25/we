@@ -1,0 +1,38 @@
+.profile-lights {
+  position: absolute; inset: 0; overflow: hidden; pointer-events: none; isolation: isolate;
+  background: radial-gradient(ellipse at 50% 120%, var(--profile-light), #101c32 75%);
+}
+.profile-lights__bloom {
+  position: absolute; width: 90%; height: 140%; left: 5%; top: 15%; border-radius: 50%;
+  background: radial-gradient(ellipse, var(--profile-light), transparent 66%);
+  opacity: .65; animation: profile-bloom 14s ease-in-out infinite alternate;
+}
+.profile-lights__rays { position: absolute; inset: -20% -10%; }
+.profile-lights__ray {
+  position: absolute; left: calc(22% + var(--i) * 12%); bottom: -30%; width: 15%; height: 150%;
+  transform-origin: 50% 100%; transform: rotate(calc(-28deg + var(--i) * 13deg));
+  background: linear-gradient(to top, transparent 4%, #ffffff36 35%, #ffffff0a 76%, transparent);
+  clip-path: polygon(46% 100%, 0 0, 100% 0, 54% 100%); filter: blur(7px);
+  animation: profile-ray 10s ease-in-out infinite alternate; animation-delay: calc(var(--i) * -2.3s);
+}
+.profile-lights__haze {
+  position: absolute; inset: -30%; opacity: .32;
+  background: radial-gradient(ellipse at 25% 55%, #ffffff40, transparent 40%), radial-gradient(ellipse at 75% 35%, var(--profile-light), transparent 45%);
+  animation: profile-haze 19s ease-in-out infinite alternate;
+}
+.profile-lights__spark {
+  position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff; opacity: .2;
+  box-shadow: 0 0 9px #ffffff80; animation: profile-spark 8s ease-in-out infinite;
+  animation-delay: calc(var(--i) * -.75s);
+}
+.profile-lights__vignette { position: absolute; inset: 0; background: linear-gradient(to bottom, #07101f38, transparent 50%, #07101f30); }
+@keyframes profile-ray {
+  from { transform: rotate(calc(-28deg + var(--i) * 13deg)) scaleX(.8); opacity: .25; }
+  to { transform: rotate(calc(-17deg + var(--i) * 11deg)) scaleX(1.2); opacity: .8; }
+}
+@keyframes profile-bloom { to { transform: translate(-5%, -8%) scale(1.15); opacity: .9; } }
+@keyframes profile-haze { to { transform: translate(8%, -5%) rotate(12deg); } }
+@keyframes profile-spark { 0%, 100% { transform: translateY(12px); opacity: 0; } 45% { opacity: .6; } 80% { transform: translateY(-25px); opacity: .1; } }
+.profile-lights[data-active="false"] * { animation-play-state: paused; }
+@media (max-width: 599px) { .profile-lights__ray { filter: blur(4px); } .profile-lights__spark:nth-of-type(even) { display: none; } }
+@media (prefers-reduced-motion: reduce) { .profile-lights * { animation: none !important; } }

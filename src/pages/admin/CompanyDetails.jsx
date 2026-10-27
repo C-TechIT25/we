@@ -1,9 +1,11 @@
+import ModernSocialHub from '../../components/ModernSocialHub';
+import CtechProfile from '../../components/CtechProfile';
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Box, Typography, Card, CardContent, Button, TextField, IconButton,
   Grid, Dialog, DialogTitle, DialogContent, DialogActions, Chip, InputAdornment,
-  CircularProgress, Skeleton, Divider, Tooltip, FormControl, Select, MenuItem
+  CircularProgress, Skeleton, Divider, Tooltip, FormControl, Select, MenuItem, RadioGroup, Radio, FormControlLabel
 } from '@mui/material';
 import {
   doc, getDoc, collection, addDoc, updateDoc, deleteDoc, onSnapshot, serverTimestamp,
@@ -15,6 +17,7 @@ import {
 } from '@mui/icons-material';
 import * as MuiIcons from '@mui/icons-material';
 import SnackbarAlert from '../../components/SnackbarAlert';
+import { PROFILE_STYLES, getProfileStyle } from '../../utils/profileStyles';
 import { getCompanyAssets } from '../../utils/companyAssets';
 
 const PRESETS = [
@@ -32,7 +35,7 @@ const PRESETS = [
   { label: 'Slate', color: '#475569' },
 ];
 
-const DEFAULT_THEME = { backgroundColor: '#ffffff', textColor: '#172033', buttonStyle: 'outlined', cardStyle: 'glass' };
+const DEFAULT_THEME = { profileStyle: 'normal', backgroundColor: '#ffffff', textColor: '#172033', buttonStyle: 'outlined', cardStyle: 'glass' };
 
 const EMPTY_FORM = { name: '', url: '', bio: '', icon: 'Link', background: PRESETS[9].color };
 
@@ -65,6 +68,7 @@ export default function CompanyDetails() {
   const [toast, setToast] = useState({ open: false, message: '', severity: 'success' });
   const [themeForm, setThemeForm] = useState(DEFAULT_THEME);
   const [savingTheme, setSavingTheme] = useState(false);
+  const [previewOpen, setPreviewOpen] = useState(false);
   const [savedTheme, setSavedTheme] = useState(DEFAULT_THEME);
   const themeChanged = Object.keys(DEFAULT_THEME).some(key => themeForm[key] !== savedTheme[key]);
 
@@ -77,15 +81,10 @@ export default function CompanyDetails() {
       if (snap.exists()) {
         const data = snap.data();
         setCompany({ id: snap.id, ...data });
-        setSavedTheme({ ...DEFAULT_THEME, ...data.theme });
-        if (data.theme) {
-          setThemeForm({
-            backgroundColor: data.theme.backgroundColor || '#ffffff',
-            textColor: data.theme.textColor || '#172033',
-            buttonStyle: data.theme.buttonStyle || 'outlined',
-            cardStyle: data.theme.cardStyle || 'glass',
-          });
-        }
+        const loadedTheme = Object.fromEntries(Object.entries(DEFAULT_THEME).map(([key, fallback]) => [key, data.theme?.[key] || fallback]));
+        loadedTheme.profileStyle = getProfileStyle(data.theme?.profileStyle);
+        setSavedTheme(loadedTheme);
+        setThemeForm(loadedTheme);
       } else {
         navigate('/admin');
       }
@@ -227,6 +226,23 @@ export default function CompanyDetails() {
       {/* Theme Settings */}
       {company && (
         <Card sx={{ mb: 4, overflow: 'hidden' }}>
+          <Box sx={{ p: { xs: 2.5, sm: 4 }, borderBottom: '1px solid #e8ecf2' }}>
+            <Typography id="profile-style-label" variant="h6" sx={{ fontSize: '1.1rem' }}>Public profile style</Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 0.5, mb: 2.5 }}>Choose a look for this company, then save your changes.</Typography>
+            <RadioGroup aria-labelledby="profile-style-label" value={themeForm.profileStyle} onChange={e => setThemeForm({ ...themeForm, profileStyle: e.target.value })} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(3, minmax(0, 1fr))' }, gap: 2 }}>
+              {PROFILE_STYLES.map(style => {
+                const selected = themeForm.profileStyle === style.value;
+                const color = /c-tech|ctech/i.test(company.slug) ? '#3673FC' : '#d53b43';
+                return <Box key={style.value} sx={{ border: '2px solid', borderColor: selected ? 'primary.main' : '#e8ecf2', borderRadius: 3, overflow: 'hidden', bgcolor: selected ? '#f5f8ff' : '#fff', '&:focus-within': { outline: '2px solid #3673FC', outlineOffset: 3 } }}>
+                  <Box component="label" htmlFor={'profile-style-' + style.value} aria-hidden="true" sx={{ display: 'block', cursor: savingTheme ? 'default' : 'pointer', height: 92, position: 'relative', overflow: 'hidden', bgcolor: '#f4f4f7' }}>
+                    <Box sx={{ height: 55, background: style.value === 'modern' ? 'linear-gradient(120deg, #10243a, ' + color + ', #8edcfa)' : color, ...(style.value === 'image' && { backgroundImage: 'url(' + getCompanyAssets(company.slug).header + ')', backgroundSize: 'cover', backgroundPosition: 'center' }) }} />
+                    <Box sx={{ position: 'absolute', top: 36, left: 'calc(50% - 21px)', width: 42, height: 42, borderRadius: '50%', bgcolor: '#fff', p: 0.5, boxShadow: '0 3px 10px #0002' }}><Box component="img" src={getCompanyAssets(company.slug).logo} alt="" sx={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: 'inherit' }} /></Box>
+                  </Box>
+                  <FormControlLabel value={style.value} disabled={savingTheme} control={<Radio size="small" inputProps={{ id: 'profile-style-' + style.value }} />} sx={{ m: 0, p: 1, width: '100%', alignItems: 'flex-start' }} label={<Box sx={{ pt: 0.6 }}><Typography variant="body2" fontWeight={600}>{style.label}</Typography><Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5, pr: 1 }}>{style.description}</Typography></Box>} />
+                </Box>;
+              })}
+            </RadioGroup>
+          </Box>
           <Box sx={{ p: { xs: 2.5, sm: 4 }, display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'minmax(200px, 0.8fr) minmax(0, 2fr)' }, gap: { xs: 3, md: 6 } }}>
             <Box>
               <Box sx={{ width: 42, height: 42, display: 'grid', placeItems: 'center', bgcolor: '#eaf1ff', color: 'primary.main', borderRadius: 2.5, mb: 2 }}><MuiIcons.PaletteOutlined fontSize="small" /></Box>
@@ -257,7 +273,8 @@ export default function CompanyDetails() {
           </Box>
           <Box sx={{ px: { xs: 2.5, sm: 4 }, py: 2, borderTop: '1px solid #e8ecf2', bgcolor: '#fafcfc', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2, flexWrap: 'wrap' }}>
             <Typography variant="caption" color="text.secondary" role="status">{themeChanged ? 'You have unsaved changes.' : 'Changes will apply to your public page.'}</Typography>
-            <Box sx={{ display: 'flex', gap: 1, ml: 'auto' }}>
+            <Box sx={{ display: 'flex', gap: 1, ml: 'auto', flexWrap: 'wrap' }}>
+              <Button variant="outlined" onClick={() => setPreviewOpen(true)} startIcon={<MuiIcons.VisibilityOutlined />}>Preview style</Button>
               {themeChanged && <Button color="secondary" disabled={savingTheme} onClick={() => setThemeForm({ ...savedTheme })}>Discard</Button>}
               <Button variant="contained" onClick={handleSaveTheme} disabled={savingTheme || !themeChanged} startIcon={savingTheme ? <CircularProgress size={16} color="inherit" /> : <MuiIcons.CheckRounded sx={{ fontSize: 18 }} />}>
                 {savingTheme ? 'Saving...' : 'Save changes'}
@@ -266,6 +283,14 @@ export default function CompanyDetails() {
           </Box>
         </Card>
       )}
+
+      <Dialog open={previewOpen} onClose={() => setPreviewOpen(false)} fullWidth maxWidth={themeForm.profileStyle === 'modern' ? 'xl' : 'md'} aria-labelledby="profile-preview-title">
+        <DialogTitle id="profile-preview-title">{PROFILE_STYLES.find(style => style.value === themeForm.profileStyle)?.label} preview</DialogTitle>
+        <DialogContent sx={{ p: 0, bgcolor: '#f4f4f7', overflowX: 'hidden' }}>
+          {company && (themeForm.profileStyle === 'modern' ? <ModernSocialHub company={company} logo={getCompanyAssets(company.slug).logo} links={links} preview /> : <CtechProfile key={themeForm.profileStyle} company={company} logo={getCompanyAssets(company.slug).logo} headerImage={getCompanyAssets(company.slug).header} isCtech={/c-tech|ctech/i.test(company.slug)} headerColor={/c-tech|ctech/i.test(company.slug) ? '#3673FC' : '#d53b43'} profileStyle={themeForm.profileStyle} preview />)}
+        </DialogContent>
+        <DialogActions><Typography variant="caption" color="text.secondary" sx={{ mr: 'auto', pl: 1 }}>Preview only. Save changes to update the public page.</Typography><Button onClick={() => setPreviewOpen(false)}>Close</Button></DialogActions>
+      </Dialog>
 
       {/* Links header */}
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
