@@ -5,6 +5,7 @@ import DashboardLayout from './pages/admin/DashboardLayout';
 import ManageCompanies from './pages/admin/ManageCompanies';
 import CreateCompany from './pages/admin/CreateCompany';
 import CompanyDetails from './pages/admin/CompanyDetails';
+import Analytics from './pages/admin/Analytics';
 import CompanyPage from './pages/public/CompanyPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import { useAuth } from './context/AuthContext';
@@ -64,6 +65,7 @@ function App() {
       {/* Admin Protected Routes */}
       <Route path="/admin" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
         <Route index element={<ManageCompanies />} />
+        <Route path="analytics" element={<Analytics />} />
         <Route path="create" element={<CreateCompany />} />
         <Route path="company/:id" element={<CompanyDetails />} />
       </Route>

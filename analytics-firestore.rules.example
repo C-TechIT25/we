@@ -1,0 +1,22 @@
+// Merge this match block INSIDE your existing /databases/{database}/documents
+// block. Preserve existing company/link rules. This is not a full rules file.
+match /analyticsEvents/{eventId} {
+  // Replace with your existing admin authorization predicate if more restrictive.
+  // The current application treats Firebase email/password accounts as admins.
+  allow read: if request.auth != null;
+  allow create: if request.resource.data.keys().hasOnly([
+      'companyId', 'type', 'linkId', 'platform', 'createdAt'
+    ])
+    && request.resource.data.companyId is string
+    && exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId))
+    && request.resource.data.createdAt == request.time
+    && request.resource.data.type in ['page_view', 'link_view', 'link_click']
+    && request.resource.data.linkId is string
+    && request.resource.data.platform is string
+    && request.resource.data.platform.size() <= 40
+    && ((request.resource.data.type == 'page_view'
+        && request.resource.data.linkId == '' && request.resource.data.platform == '')
+      || (request.resource.data.type in ['link_view', 'link_click']
+        && exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId)/links/$(request.resource.data.linkId))));
+  allow update, delete: if false;
+}

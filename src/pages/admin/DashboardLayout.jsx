@@ -5,6 +5,7 @@ import {
 } from '@mui/material';
 import {
   Menu as MenuIcon,
+  AnalyticsRounded as AnalyticsIcon,
   AddBusiness as AddBusinessIcon,
   GridView as GridViewIcon,
   LogoutRounded as LogoutIcon,
@@ -16,6 +17,7 @@ import { useAuth } from '../../context/AuthContext';
 const DRAWER_W = 260;
 
 const NAV = [
+  { label: 'Analytics', icon: <AnalyticsIcon />, path: '/admin/analytics' },
   { label: 'Companies', icon: <GridViewIcon />, path: '/admin' },
   { label: 'Create Company', icon: <AddBusinessIcon />, path: '/admin/create' },
 ];
@@ -118,7 +120,7 @@ export default function DashboardLayout() {
   return (
     <Box sx={{ display: 'flex', minHeight: '100vh' }}>
 
-      {/* ── App Bar (shown on mobile, sits above sidebar on desktop) ── */}
+      {/* â”€â”€ App Bar (shown on mobile, sits above sidebar on desktop) â”€â”€ */}
       <AppBar
         position="fixed"
         sx={{
@@ -129,7 +131,7 @@ export default function DashboardLayout() {
         }}
       >
         <Toolbar sx={{ gap: 1.5, minHeight: { xs: 58, sm: 66 } }}>
-          {/* Hamburger — only on mobile */}
+          {/* Hamburger â€” only on mobile */}
           <IconButton
             color="inherit"
             edge="start"
@@ -146,7 +148,7 @@ export default function DashboardLayout() {
             noWrap
             sx={{ flexGrow: 1, fontSize: { xs: '1rem', sm: '1.1rem' } }}
           >
-            {location.pathname === '/admin/create' ? 'New company' : location.pathname.startsWith('/admin/company/') ? 'Company workspace' : 'Overview'}
+            {location.pathname === '/admin/analytics' ? 'Analytics' : location.pathname === '/admin/create' ? 'New company' : location.pathname.startsWith('/admin/company/') ? 'Company workspace' : 'Overview'}
           </Typography>
 
           <Chip
@@ -163,7 +165,7 @@ export default function DashboardLayout() {
         </Toolbar>
       </AppBar>
 
-      {/* ── Sidebar nav (box that reserves space on desktop) ── */}
+      {/* â”€â”€ Sidebar nav (box that reserves space on desktop) â”€â”€ */}
       <Box
         component="nav"
         sx={{
@@ -198,7 +200,7 @@ export default function DashboardLayout() {
         </Drawer>
       </Box>
 
-      {/* ── Main content area — offset by toolbar height on top ── */}
+      {/* â”€â”€ Main content area â€” offset by toolbar height on top â”€â”€ */}
       <Box
         component="main"
         sx={{

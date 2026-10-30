@@ -1,3 +1,4 @@
+import ProfileAnalytics from '../../components/ProfileAnalytics';
 import ModernSocialHub from '../../components/ModernSocialHub';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -121,9 +122,9 @@ export default function CompanyPage({ companySlug }) {
     </Box>
   );
 
-  if (!loading && company?.theme?.profileStyle === 'modern') return <ModernSocialHub company={company} logo={assets.logo} links={links} />;
+  if (!loading && company?.theme?.profileStyle === 'modern') return <ProfileAnalytics companyId={company.id} links={links}><ModernSocialHub company={company} logo={assets.logo} links={links} /></ProfileAnalytics>;
 
-  return (
+  const content = (
     <Box ref={pageRef} sx={{
       minHeight: '100vh', pb: 10, position: 'relative', overflow: 'hidden',
       backgroundColor: (isCtech || isPrecon) ? '#f4f4f7' : (company?.theme?.backgroundColor || '#ffffff'),
@@ -377,4 +378,5 @@ export default function CompanyPage({ companySlug }) {
       </Container>
     </Box>
   );
+  return !loading && company ? <ProfileAnalytics companyId={company.id} links={links}>{content}</ProfileAnalytics> : content;
 }
