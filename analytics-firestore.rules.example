@@ -5,7 +5,7 @@ match /analyticsEvents/{eventId} {
   // The current application treats Firebase email/password accounts as admins.
   allow read: if request.auth != null;
   allow create: if request.resource.data.keys().hasOnly([
-      'companyId', 'type', 'linkId', 'platform', 'createdAt'
+      'companyId', 'type', 'linkId', 'platform', 'createdAt', 'source', 'medium', 'campaign'
     ])
     && request.resource.data.companyId is string
     && exists(/databases/$(database)/documents/companies/$(request.resource.data.companyId))
@@ -14,6 +14,9 @@ match /analyticsEvents/{eventId} {
     && request.resource.data.linkId is string
     && request.resource.data.platform is string
     && request.resource.data.platform.size() <= 40
+    && request.resource.data.source is string && request.resource.data.source.size() <= 100
+    && request.resource.data.medium is string && request.resource.data.medium.size() <= 100
+    && request.resource.data.campaign is string && request.resource.data.campaign.size() <= 100
     && ((request.resource.data.type == 'page_view'
         && request.resource.data.linkId == '' && request.resource.data.platform == '')
       || (request.resource.data.type in ['link_view', 'link_click']

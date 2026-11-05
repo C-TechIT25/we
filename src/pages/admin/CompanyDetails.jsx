@@ -19,6 +19,12 @@ import * as MuiIcons from '@mui/icons-material';
 import SnackbarAlert from '../../components/SnackbarAlert';
 import { PROFILE_STYLES, getProfileStyle } from '../../utils/profileStyles';
 import { getCompanyAssets } from '../../utils/companyAssets';
+import CompanyShareTools from '../../components/CompanyShareTools';
+import { linkStatus, localDateInput, schedulePayload, sortLinks } from '../../utils/links';
+import { profileUrl } from '../../utils/profileUrl';
+import useLinkClock from '../../hooks/useLinkClock';
+import { Switch } from '@mui/material';
+import { writeBatch } from 'firebase/firestore';
 
 const PRESETS = [
   { label: 'Twitter/X', color: 'linear-gradient(135deg,#1DA1F2,#0d83c9)' },
@@ -37,7 +43,7 @@ const PRESETS = [
 
 const DEFAULT_THEME = { profileStyle: 'normal', backgroundColor: '#ffffff', textColor: '#172033', buttonStyle: 'outlined', cardStyle: 'glass' };
 
-const EMPTY_FORM = { name: '', url: '', bio: '', icon: 'Link', background: PRESETS[9].color };
+const EMPTY_FORM = { name: '', url: '', bio: '', icon: 'Link', background: PRESETS[9].color, enabled: true, startsAt: '', endsAt: '' };
 
 function SkeletonCard() {
   return (
@@ -59,6 +65,9 @@ export default function CompanyDetails() {
 
   const [company, setCompany] = useState(null);
   const [links, setLinks] = useState([]);
+  const now = useLinkClock(links);
+  const [dragId, setDragId] = useState(null);
+  const [updatingLinks, setUpdatingLinks] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [openModal, setOpenModal] = useState(false);
@@ -92,8 +101,7 @@ export default function CompanyDetails() {
 
     return onSnapshot(collection(db, `companies/${id}/links`), snap => {
       setLinks(
-        snap.docs.map(d => ({ id: d.id, ...d.data() }))
-          .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
+        sortLinks(snap.docs.map(d => ({ id: d.id, ...d.data() })))
       );
       setLoading(false);
     });
@@ -102,7 +110,7 @@ export default function CompanyDetails() {
   const openAdd = () => { setForm(EMPTY_FORM); setFormMode('add'); setOpenModal(true); };
   const openEdit = (link) => {
     setCurrentId(link.id);
-    setForm({ name: link.name, url: link.url, bio: link.bio || '', icon: link.icon || 'Link', background: link.background || PRESETS[9].color });
+    setForm({ name: link.name, url: link.url, bio: link.bio || '', icon: link.icon || 'Link', background: link.background || PRESETS[9].color, enabled: link.enabled !== false, startsAt: localDateInput(link.startsAt), endsAt: localDateInput(link.endsAt) });
     setFormMode('edit');
     setOpenModal(true);
   };
@@ -111,11 +119,16 @@ export default function CompanyDetails() {
     if (!form.name || !form.url) {
       return setToast({ open: true, message: 'Name and URL are required.', severity: 'error' });
     }
+    let schedule;
+    try {
+      schedule = schedulePayload(form.startsAt, form.endsAt);
+      if (!['https:', 'http:'].includes(new URL(form.url).protocol)) throw new Error('Use an http or https link.');
+    } catch (error) { return setToast({ open: true, message: error.message, severity: 'error' }); }
     setSaving(true);
     try {
-      const payload = { name: form.name, url: form.url, bio: form.bio, icon: form.icon, background: form.background };
+      const payload = { name: form.name, url: form.url, bio: form.bio, icon: form.icon, background: form.background, enabled: form.enabled, ...schedule };
       if (formMode === 'add') {
-        await addDoc(collection(db, `companies/${id}/links`), { ...payload, createdAt: serverTimestamp() });
+        await addDoc(collection(db, `companies/${id}/links`), { ...payload, order: Math.min(0, ...links.map(link => Number.isFinite(link.order) ? link.order : 0)) - 1, createdAt: serverTimestamp() });
         setToast({ open: true, message: 'Link added!', severity: 'success' });
       } else {
         await updateDoc(doc(db, `companies/${id}/links`, currentId), payload);
@@ -150,6 +163,29 @@ export default function CompanyDetails() {
     } catch {
       setToast({ open: true, message: 'Error deleting', severity: 'error' });
     }
+  };
+
+  const reorder = async (fromId, toId) => {
+    if (updatingLinks || !fromId || fromId === toId) return;
+    const from = links.findIndex(link => link.id === fromId), to = links.findIndex(link => link.id === toId);
+    if (from < 0 || to < 0) return;
+    const ordered = [...links];
+    ordered.splice(to, 0, ordered.splice(from, 1)[0]);
+    setUpdatingLinks(true); setDragId(null);
+    try {
+      const batch = writeBatch(db);
+      ordered.forEach((link, index) => batch.update(doc(db, `companies/${id}/links`, link.id), { order: index }));
+      await batch.commit();
+      setToast({ open: true, message: 'Link order saved.', severity: 'success' });
+    } catch { setToast({ open: true, message: 'Could not save link order. Please retry.', severity: 'error' }); }
+    finally { setUpdatingLinks(false); }
+  };
+
+  const toggleLink = async link => {
+    setUpdatingLinks(true);
+    try { await updateDoc(doc(db, `companies/${id}/links`, link.id), { enabled: link.enabled === false }); }
+    catch { setToast({ open: true, message: 'Could not update link visibility.', severity: 'error' }); }
+    finally { setUpdatingLinks(false); }
   };
 
   return (
@@ -215,7 +251,7 @@ export default function CompanyDetails() {
                 </Box>
               </Box>
               <Button variant="outlined" endIcon={<OpenInNewIcon sx={{ fontSize: 14 }} />}
-                component="a" href={`/${company.slug}`} target="_blank" rel="noopener noreferrer" size="small" sx={{ flexShrink: 0 }}>
+                component="a" href={profileUrl(company.slug)} target="_blank" rel="noopener noreferrer" size="small" sx={{ flexShrink: 0 }}>
                 View public page
               </Button>
             </Box>
@@ -223,6 +259,7 @@ export default function CompanyDetails() {
         </Card>
       )}
 
+      {company && <CompanyShareTools key={company.id} company={company} />}
       {/* Theme Settings */}
       {company && (
         <Card sx={{ mb: 4, overflow: 'hidden' }}>
@@ -296,6 +333,7 @@ export default function CompanyDetails() {
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
         <Box>
           <Typography variant="h6" fontWeight={700}>Social Links</Typography>
+          <Typography variant="body2" color="text.secondary">Drag the handle or use arrows to reorder. Scheduled times use your local timezone.</Typography>
           {!loading && <Typography variant="caption" color="text.secondary">{links.length} link{links.length !== 1 ? 's' : ''}</Typography>}
         </Box>
         <Button variant="contained" startIcon={<AddIcon />} onClick={openAdd} size="small">
@@ -316,11 +354,13 @@ export default function CompanyDetails() {
       ) : (
         /* Full-width links list */
         <Box>
-          {links.map(link => {
+          {links.map((link, index) => {
             const Ico = MuiIcons[link.icon] || MuiIcons['Link'];
             return (
               <Card
                 key={link.id}
+                onDragOver={event => { if (dragId && !updatingLinks) event.preventDefault(); }}
+                onDrop={event => { event.preventDefault(); void reorder(dragId, link.id); }}
                 className="lift"
                 sx={{
                   mb: 1.5,
@@ -330,7 +370,8 @@ export default function CompanyDetails() {
                   borderRadius: 3,
                 }}
               >
-                <Box sx={{ display: 'flex', alignItems: 'center', p: 2, gap: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', p: 2, gap: 2, flexWrap: 'wrap' }}>
+                  <IconButton draggable={!updatingLinks} aria-label={`Drag to reorder ${link.name}`} onDragStart={event => { event.dataTransfer.setData('text/plain', link.id); event.dataTransfer.effectAllowed = 'move'; setDragId(link.id); }} onDragEnd={() => setDragId(null)} sx={{ color: 'white', cursor: 'grab' }}><MuiIcons.DragIndicator /></IconButton>
                   {/* Icon */}
                   <Box sx={{
                     width: 48, height: 48, borderRadius: 2,
@@ -346,6 +387,8 @@ export default function CompanyDetails() {
                     <Typography variant="subtitle2" fontWeight={600} color="white" noWrap>
                       {link.name}
                     </Typography>
+                    <Chip size="small" label={linkStatus(link, now)} sx={{ bgcolor: '#fff', color: '#172033', mt: 0.5 }} />
+                    {(link.startsAt || link.endsAt) && <Typography variant="caption" display="block" sx={{ color: '#fff', mt: 0.5 }}>{link.startsAt ? `From ${localDateInput(link.startsAt).replace('T', ' ')}` : 'No start limit'}{link.endsAt ? ` until ${localDateInput(link.endsAt).replace('T', ' ')}` : ''}</Typography>}
                     {link.bio && (
                       <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }} noWrap>
                         {link.bio}
@@ -355,6 +398,9 @@ export default function CompanyDetails() {
 
                   {/* Actions */}
                   <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
+                    <Switch checked={link.enabled !== false} disabled={updatingLinks} onChange={() => toggleLink(link)} inputProps={{ 'aria-label': `Enable ${link.name}` }} />
+                    <IconButton size="small" sx={{ color: '#fff' }} disabled={updatingLinks || index === 0} aria-label={`Move ${link.name} up`} onClick={() => reorder(link.id, links[index - 1].id)}><MuiIcons.ArrowUpward fontSize="small" /></IconButton>
+                    <IconButton size="small" sx={{ color: '#fff' }} disabled={updatingLinks || index === links.length - 1} aria-label={`Move ${link.name} down`} onClick={() => reorder(link.id, links[index + 1].id)}><MuiIcons.ArrowDownward fontSize="small" /></IconButton>
                     <Tooltip title="Edit">
                       <IconButton size="small" onClick={() => openEdit(link)}
                         aria-label={`Edit ${link.name}`} sx={{ color: '#fff', background: 'rgba(255,255,255,0.15)', '&:hover': { background: 'rgba(255,255,255,0.25)' } }}>
@@ -383,6 +429,9 @@ export default function CompanyDetails() {
         <Divider />
         <DialogContent sx={{ pt: 2.5 }}>
           <Grid container spacing={2}>
+            <Grid size={12}><FormControlLabel control={<Switch checked={form.enabled} onChange={e => setField('enabled', e.target.checked)} />} label="Enabled on public profile" /></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}><TextField type="datetime-local" label="Start time (optional)" value={form.startsAt} onChange={e => setField('startsAt', e.target.value)} slotProps={{ inputLabel: { shrink: true } }} fullWidth size="small" helperText="Your local time. Blank = immediately." /></Grid>
+            <Grid size={{ xs: 12, sm: 6 }}><TextField type="datetime-local" label="End time (optional)" value={form.endsAt} onChange={e => setField('endsAt', e.target.value)} slotProps={{ inputLabel: { shrink: true } }} fullWidth size="small" helperText="Your local time. Blank = no expiry." /></Grid>
             <Grid size={{ xs: 12, sm: 7 }}>
               <TextField label="Platform Name *" fullWidth value={form.name}
                 onChange={e => setField('name', e.target.value)} placeholder="e.g. Instagram" size="small" />

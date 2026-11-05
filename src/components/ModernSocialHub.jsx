@@ -1,13 +1,11 @@
 import { getCompanyAssets } from '../utils/companyAssets';
-import { useLayoutEffect, useRef, useState } from 'react';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useState } from 'react';
 import { Instagram, LinkedIn, WhatsApp, YouTube, Facebook, X, Google, Telegram, Language, NorthEast, ShareOutlined, Email, Phone, LocationOn, ArrowForward, Link as LinkIcon } from '@mui/icons-material';
 import { Snackbar, Dialog, DialogTitle, DialogContent, DialogActions, Button, TextField } from '@mui/material';
 import './ModernSocialHub.css';
 
-gsap.registerPlugin(ScrollTrigger);
 const platforms = [
+  ['website', /website|official site/i, Language, 'Our website', 'Explore our projects and expertise'],
   ['instagram', /instagram/i, Instagram, 'Instagram', 'A closer look at our work'],
   ['linkedin', /linkedin/i, LinkedIn, 'LinkedIn', 'Ideas, insights & opportunities'],
   ['whatsapp', /whatsapp|wa.me/i, WhatsApp, 'WhatsApp Channel', 'Updates, straight to you'],
@@ -21,7 +19,6 @@ function platform(link) { return platforms.find(([, match]) => match.test(link.n
 const safeUrl = value => { try { const url = new URL(value); return ['https:', 'http:'].includes(url.protocol) ? url.href : undefined; } catch { return undefined; } };
 
 export default function ModernSocialHub({ company, logo, links = [], preview = false }) {
-  const root = useRef(null);
   const [notice, setNotice] = useState('');
   const [shareOpen, setShareOpen] = useState(false);
   const ctech = /c-tech|ctech/i.test(company.slug || '');
@@ -32,33 +29,19 @@ export default function ModernSocialHub({ company, logo, links = [], preview = f
   const fullName = ctech ? 'C-Tech Engineering & Construction (P) Limited' : company.name;
   const address = company.address || (ctech ? '1291/G, 47th St, Phase II, Sathuvachari, Vellore, Tamil Nadu' : '');
   const website = links.find(link => /website|official site/i.test(link.name));
-  const socialLinks = links.filter(link => link !== website).sort((a, b) => {
-    const rank = link => { const index = platforms.findIndex(([, match]) => match.test(link.name + ' ' + link.url)); return index < 0 ? 99 : index; };
-    return rank(a) - rank(b);
-  });
-  useLayoutEffect(() => {
-    const motion = gsap.matchMedia();
-    motion.add('(prefers-reduced-motion: no-preference)', () => {
-      const context = gsap.context(() => {
-        gsap.from('.hub-reveal', { y: 20, opacity: 0, duration: .7, stagger: .09, clearProps: 'all' });
-        gsap.utils.toArray('.hub-social-card').forEach(card => gsap.from(card, { y: 22, opacity: 0, duration: .55, clearProps: 'all', scrollTrigger: { trigger: card, start: 'top 96%', once: true } }));
-      }, root);
-      return () => context.revert();
-    });
-    return () => motion.revert();
-  }, []);
+  const socialLinks = links;
   async function share() {
     try {
       if (navigator.share) await navigator.share({ title: fullName, url: window.location.href });
       else { await navigator.clipboard.writeText(window.location.href); setNotice('Profile link copied'); }
     } catch (error) { if (error.name !== 'AbortError') setShareOpen(true); }
   }
-  return <div ref={root} className={precon ? 'social-hub social-hub--precon' : 'social-hub'}>
+  return <div className={precon ? 'social-hub social-hub--precon' : 'social-hub'}>
     <header className="hub-nav">
-      <nav aria-label="Profile actions">{safeUrl(website?.url) && <a href={preview ? undefined : website.url} target="_blank" rel="noopener noreferrer"><Language /> <span>Our website</span></a>}<button onClick={share} disabled={preview}><ShareOutlined /> Share profile</button></nav>
+      <nav aria-label="Profile actions">{safeUrl(website?.url) && <a data-link-id={website?.id} href={preview ? undefined : website.url} target="_blank" rel="noopener noreferrer"><Language /> <span>Our website</span></a>}<button onClick={share} disabled={preview}><ShareOutlined /> Share profile</button></nav>
     </header>
     <main className="hub-shell"><div className="hub-columns">
-      <section className="hub-brand-panel hub-reveal">
+      <section className="hub-brand-panel">
         <img className="hub-building-photo" src={backgroundPhoto} alt="" onError={event => { if (event.currentTarget.dataset.fallback) return; event.currentTarget.dataset.fallback = 'true'; event.currentTarget.src = companyAssets.header; }} />
         <div className="hub-photo-fade" aria-hidden="true" />
         <div className="hub-logo-orbit"><img src={logo} alt={fullName} /></div>
@@ -70,9 +53,8 @@ export default function ModernSocialHub({ company, logo, links = [], preview = f
           <div className="hub-contact">{company.email && <a href={preview ? undefined : 'mailto:' + company.email}><Email />Email us</a>}{company.phone && <a href={preview ? undefined : 'tel:' + company.phone}><Phone />Call us</a>}</div>
         </div>
       </section>
-      <section className="hub-network"><div className="hub-heading hub-reveal"><span>THE {brand} NETWORK</span><h2>One place. <em>Every connection.</em></h2><p>Find us on your favourite platform.</p></div>
-        {safeUrl(website?.url) && <a className="hub-website hub-reveal" href={preview ? undefined : website.url} target="_blank" rel="noopener noreferrer"><span className="hub-web-icon"><Language /></span><div><h3>Visit our website</h3><p>Explore our projects & expertise</p></div><span className="hub-arrow"><NorthEast /></span></a>}
-        <div className="hub-social-grid">{socialLinks.map(link => { const [key, , Icon, title, subtitle] = platform(link); return <a key={link.id} className={'hub-social-card hub-platform-' + key} href={preview ? undefined : safeUrl(link.url)} target="_blank" rel="noopener noreferrer"><span className={'hub-social-logo hub-logo-' + key}>{key === 'google' ? <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.5-.1-2.9-.4-4.3H24v8.2h11a9.4 9.4 0 0 1-4.1 6.2v5.2h6.7c3.9-3.6 6-8.9 6-15.3Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.2c-1.8 1.2-4.1 1.9-6.8 1.9-5.3 0-9.9-3.6-11.5-8.4H5.6v5.3A20.4 20.4 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.5 27.4a12.3 12.3 0 0 1 0-7.8v-5.3H5.6a20 20 0 0 0 0 18.4l6.9-5.3Z"/><path fill="#EA4335" d="M24 11.2c3 0 5.6 1 7.7 3l5.8-5.8A19.4 19.4 0 0 0 24 3 20.4 20.4 0 0 0 5.6 14.3l6.9 5.3C14.1 14.8 18.7 11.2 24 11.2Z"/></svg> : <Icon />}</span><div><h3>{key === 'other' ? link.name : title}</h3><p>{link.bio || subtitle}</p></div><span className="hub-arrow"><NorthEast /></span></a>; })}</div>
+      <section className="hub-network"><div className="hub-heading"><span>THE {brand} NETWORK</span><h2>One place. <em>Every connection.</em></h2><p>Find us on your favourite platform.</p></div>
+        <div className="hub-social-grid">{socialLinks.map(link => { const [key, , Icon, title, subtitle] = platform(link); return <a key={link.id} data-link-id={link.id} className={'hub-social-card hub-platform-' + key} href={preview ? undefined : safeUrl(link.url)} target="_blank" rel="noopener noreferrer"><span className={'hub-social-logo hub-logo-' + key}>{key === 'google' ? <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.5-.1-2.9-.4-4.3H24v8.2h11a9.4 9.4 0 0 1-4.1 6.2v5.2h6.7c3.9-3.6 6-8.9 6-15.3Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.2c-1.8 1.2-4.1 1.9-6.8 1.9-5.3 0-9.9-3.6-11.5-8.4H5.6v5.3A20.4 20.4 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.5 27.4a12.3 12.3 0 0 1 0-7.8v-5.3H5.6a20 20 0 0 0 0 18.4l6.9-5.3Z"/><path fill="#EA4335" d="M24 11.2c3 0 5.6 1 7.7 3l5.8-5.8A19.4 19.4 0 0 0 24 3 20.4 20.4 0 0 0 5.6 14.3l6.9 5.3C14.1 14.8 18.7 11.2 24 11.2Z"/></svg> : <Icon />}</span><div><h3>{key === 'other' ? link.name : title}</h3><p>{link.bio || subtitle}</p></div><span className="hub-arrow"><NorthEast /></span></a>; })}</div>
         {!socialLinks.length && <p className="hub-empty">Social links will appear here once published.</p>}
       </section></div>
       {address && <div className="hub-address"><LocationOn /><span>{address}</span><a href={preview ? undefined : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address)} target="_blank" rel="noopener noreferrer"><LocationOn /> Get directions <ArrowForward /></a></div>}

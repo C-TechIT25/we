@@ -1,5 +1,5 @@
 import React from 'react';
-import { Routes, Route, Navigate, useParams } from 'react-router-dom';
+import { Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
 import Login from './pages/Login';
 import DashboardLayout from './pages/admin/DashboardLayout';
 import ManageCompanies from './pages/admin/ManageCompanies';
@@ -12,10 +12,7 @@ import { useAuth } from './context/AuthContext';
 import LoadingSpinner from './components/LoadingSpinner';
 
 // Domain mapping for specific companies
-const domainMap = {
-  'links.preconstructurals.com': 'precon-structurals',
-  'links.ctechengineering.in': 'c-tech-engineering',
-};
+import { domainMap } from './utils/profileUrl';
 
 function App() {
   const { currentUser } = useAuth();
@@ -41,6 +38,7 @@ function App() {
   // Wrapper for company page to enforce domain restrictions
   const RestrictedCompanyPage = () => {
     const { company_name } = useParams();
+    const location = useLocation();
     const currentHostname = window.location.hostname;
     const allowedCompany = domainMap[currentHostname];
 
@@ -48,7 +46,7 @@ function App() {
     if (allowedCompany) {
       // If the user tries to access the correct company via its slug, redirect to root for a cleaner URL
       if (company_name === allowedCompany) {
-        return <Navigate to="/" replace />;
+        return <Navigate to={{ pathname: '/', search: location.search }} replace />;
       }
       // If the user tries to access a DIFFERENT company, block them by redirecting to the domain's root
       return <Navigate to="/" replace />;

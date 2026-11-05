@@ -1,8 +1,6 @@
 import ProfileAnalytics from '../../components/ProfileAnalytics';
 import ModernSocialHub from '../../components/ModernSocialHub';
-import { gsap } from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import React, { useState, useEffect, useRef, useLayoutEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import {
   Box, Typography, Container, Card, CardActionArea, Skeleton, Grid, Button,
@@ -13,8 +11,9 @@ import * as MuiIcons from '@mui/icons-material';
 import { ArrowForwardIos } from '@mui/icons-material';
 import CtechProfile from '../../components/CtechProfile';
 import { getCompanyAssets } from '../../utils/companyAssets';
+import { linkStatus, sortLinks } from '../../utils/links';
+import useLinkClock from '../../hooks/useLinkClock';
 
-gsap.registerPlugin(ScrollTrigger);
 
 /* ── Skeleton for one link row ── */
 function LinkSkeleton() {
@@ -54,54 +53,36 @@ export default function CompanyPage({ companySlug }) {
   const isCtech = /c-tech|ctech/i.test(slug || '');
   const isPrecon = /precon/i.test(slug || '');
   const [company, setCompany] = useState(null);
-  const [links, setLinks] = useState([]);
+  const [allLinks, setLinks] = useState([]);
+  const now = useLinkClock(allLinks);
+  const links = useMemo(() => sortLinks(allLinks).filter(link => linkStatus(link, now) === 'Live'), [allLinks, now]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const pageRef = useRef(null);
-  useLayoutEffect(() => {
-    if (loading || error || company?.theme?.profileStyle === 'modern') return;
-    const motion = gsap.matchMedia();
-    motion.add('(prefers-reduced-motion: no-preference)', () => {
-      const context = gsap.context(() => {
-        gsap.utils.toArray('[data-link-reveal]').forEach((card) => {
-          gsap.from(card, {
-            y: 24, autoAlpha: 0, duration: 0.65, ease: 'power2.out',
-            scrollTrigger: { trigger: card, start: 'top 94%', once: true },
-            clearProps: 'all',
-          });
-        });
-      }, pageRef);
-      return () => context.revert();
-    });
-    return () => motion.revert();
-  }, [loading, error, links, company?.theme?.profileStyle]);
-
   useEffect(() => {
     let unsubLinks = () => { };
-    if (!slug) {
-      setLoading(false);
-      return;
-    }
+    let active = true;
     (async () => {
       try {
+        setLoading(true); setError('');
+        if (!slug) { setError('not_found'); setLoading(false); return; }
         const snap = await getDocs(
           query(collection(db, 'companies'), where('slug', '==', slug))
         );
+        if (!active) return;
         if (snap.empty) { setError('not_found'); setLoading(false); return; }
         const comp = { id: snap.docs[0].id, ...snap.docs[0].data() };
         setCompany(comp);
         unsubLinks = onSnapshot(collection(db, `companies/${comp.id}/links`), s => {
           setLinks(
             s.docs.map(d => ({ id: d.id, ...d.data() }))
-              .sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0))
           );
           setLoading(false);
-        });
+        }, () => { if (active) { setError('error'); setLoading(false); } });
       } catch {
-        setError('error'); setLoading(false);
+        if (active) { setError('error'); setLoading(false); }
       }
     })();
-    return () => unsubLinks();
+    return () => { active = false; unsubLinks(); };
   }, [slug]);
 
   // Resolve local assets based on the company slug
@@ -125,7 +106,7 @@ export default function CompanyPage({ companySlug }) {
   if (!loading && company?.theme?.profileStyle === 'modern') return <ProfileAnalytics companyId={company.id} links={links}><ModernSocialHub company={company} logo={assets.logo} links={links} /></ProfileAnalytics>;
 
   const content = (
-    <Box ref={pageRef} sx={{
+    <Box sx={{
       minHeight: '100vh', pb: 10, position: 'relative', overflow: 'hidden',
       backgroundColor: (isCtech || isPrecon) ? '#f4f4f7' : (company?.theme?.backgroundColor || '#ffffff'),
     }}>
@@ -136,19 +117,19 @@ export default function CompanyPage({ companySlug }) {
         width: '100vw', height: '55vh',
         background: 'radial-gradient(ellipse,rgba(255,255,255,0.08) 0%,transparent 65%)',
         pointerEvents: 'none', zIndex: 0,
-      }} className="anim-pulse" />
+      }} />
       <Box sx={{
         position: 'fixed', bottom: '-5%', right: '-15%',
         width: '45vw', height: '45vw', borderRadius: '50%',
         background: 'radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%)',
         pointerEvents: 'none', zIndex: 0,
-      }} className="anim-float" />
+      }} />
       <Box sx={{
         position: 'fixed', top: '20%', left: '-15%',
         width: '35vw', height: '35vw', borderRadius: '50%',
         background: 'radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%)',
         pointerEvents: 'none', zIndex: 0,
-      }} className="anim-float-rev" />
+      }} />
 
       {/* ══ HERO ══ */}
       {loading ? (
@@ -312,7 +293,7 @@ export default function CompanyPage({ companySlug }) {
             {links.map(link => {
               const Ico = MuiIcons[link.icon] || MuiIcons['Link'];
               return (
-                <Grid data-link-reveal size={{ xs: 12, sm: 6 }} key={link.id}>
+                <Grid size={{ xs: 12, sm: 6 }} key={link.id}>
                   <Card
                     className="lift"
                     sx={{
@@ -331,6 +312,7 @@ export default function CompanyPage({ companySlug }) {
                     }}
                   >
                     <CardActionArea
+                      data-link-id={link.id}
                       component="a"
                       href={link.url}
                       target="_blank"
