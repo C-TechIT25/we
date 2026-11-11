@@ -341,7 +341,7 @@ export default function CompanyPage({ companySlug }) {
                       {/* Text */}
                       <Box sx={{ flex: 1, minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
                         <Typography variant="subtitle1" fontWeight={700} color={googleReview ? '#202124' : company?.theme?.cardStyle === 'transparent' || link.background?.includes('rgba(255') ? (company?.theme?.textColor || '#172033') : 'white'}
-                          sx={{ lineHeight: 1.25, mb: link.bio ? 0.3 : 0, fontSize: { xs: '0.8rem', sm: '1.02rem' }, overflowWrap: 'anywhere', whiteSpace: { xs: 'normal', sm: 'nowrap' }, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                          sx={{ lineHeight: 1.25, mb: link.bio ? 0.3 : 0, fontSize: { xs: '0.9rem', sm: '1.02rem' }, overflowWrap: 'anywhere', whiteSpace: { xs: 'normal', sm: 'nowrap' }, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {link.name}
                         </Typography>
                         {link.bio && (
