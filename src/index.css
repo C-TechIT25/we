@@ -63,12 +63,41 @@ body {
 }
 
 /* Featured review link, shared by both public profile layouts. */
+@property --review-border-angle {
+  syntax: '<angle>';
+  initial-value: 0deg;
+  inherits: false;
+}
+@keyframes review-electric-orbit {
+  to { --review-border-angle: 360deg; }
+}
 .google-review-card.google-review-card {
+  position: relative;
+  isolation: isolate;
   background: #fff;
   color: #202124;
   border: 1px solid #d2e3fc;
-  box-shadow: 0 5px 20px rgba(66, 133, 244, 0.16);
+  box-shadow: 0 0 8px rgba(0, 210, 255, 0.28), 0 5px 22px rgba(66, 133, 244, 0.2);
   transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.google-review-card.google-review-card::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 2px;
+  pointer-events: none;
+  z-index: 2;
+  background: conic-gradient(from var(--review-border-angle),
+    #d2e3fc 0deg, #d2e3fc 65deg, #4285f4 110deg,
+    #00d9ff 145deg, #fff 157deg, #4285f4 165deg,
+    #d2e3fc 180deg, #d2e3fc 245deg, #7c4dff 290deg,
+    #00d9ff 325deg, #fff 337deg, #4285f4 345deg, #d2e3fc 360deg);
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  mask-composite: exclude;
+  animation: review-electric-orbit 3s linear infinite;
 }
 .google-review-card.google-review-card:hover {
   transform: translateY(-3px);
@@ -85,6 +114,7 @@ body {
 }
 .google-review-card .hub-social-logo { background: #fff; }
 @media (prefers-reduced-motion: reduce) {
+  .google-review-card.google-review-card::after { animation: none; }
   .google-review-card.google-review-card { transition: none; }
   .google-review-card.google-review-card:hover,
   .google-review-card.google-review-card:active { transform: none; }
