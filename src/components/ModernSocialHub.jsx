@@ -1,3 +1,5 @@
+import GoogleLogo from './GoogleLogo';
+import { isGoogleReview } from '../utils/googleReview';
 import { getCompanyAssets } from '../utils/companyAssets';
 import { useState } from 'react';
 import { Instagram, LinkedIn, WhatsApp, YouTube, Facebook, X, Google, Telegram, Language, NorthEast, ShareOutlined, Email, Phone, LocationOn, ArrowForward, Link as LinkIcon } from '@mui/icons-material';
@@ -54,7 +56,7 @@ export default function ModernSocialHub({ company, logo, links = [], preview = f
         </div>
       </section>
       <section className="hub-network"><div className="hub-heading"><span>THE {brand} NETWORK</span><h2>One place. <em>Every connection.</em></h2><p>Find us on your favourite platform.</p></div>
-        <div className="hub-social-grid">{socialLinks.map(link => { const [key, , Icon, title, subtitle] = platform(link); return <a key={link.id} data-link-id={link.id} className={'hub-social-card hub-platform-' + key} href={preview ? undefined : safeUrl(link.url)} target="_blank" rel="noopener noreferrer"><span className={'hub-social-logo hub-logo-' + key}>{key === 'google' ? <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#4285F4" d="M43.6 24.5c0-1.5-.1-2.9-.4-4.3H24v8.2h11a9.4 9.4 0 0 1-4.1 6.2v5.2h6.7c3.9-3.6 6-8.9 6-15.3Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.7-5.2c-1.8 1.2-4.1 1.9-6.8 1.9-5.3 0-9.9-3.6-11.5-8.4H5.6v5.3A20.4 20.4 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.5 27.4a12.3 12.3 0 0 1 0-7.8v-5.3H5.6a20 20 0 0 0 0 18.4l6.9-5.3Z"/><path fill="#EA4335" d="M24 11.2c3 0 5.6 1 7.7 3l5.8-5.8A19.4 19.4 0 0 0 24 3 20.4 20.4 0 0 0 5.6 14.3l6.9 5.3C14.1 14.8 18.7 11.2 24 11.2Z"/></svg> : <Icon />}</span><div><h3>{key === 'other' ? link.name : title}</h3><p>{link.bio || subtitle}</p></div><span className="hub-arrow"><NorthEast /></span></a>; })}</div>
+        <div className="hub-social-grid">{socialLinks.map(link => { const [key, , Icon, title, subtitle] = platform(link); const googleReview = isGoogleReview(link); return <a key={link.id} data-link-id={link.id} className={'hub-social-card hub-platform-' + key + (googleReview ? ' google-review-card' : '')} href={preview ? undefined : safeUrl(link.url)} target="_blank" rel="noopener noreferrer"><span className={'hub-social-logo hub-logo-' + key}>{key === 'google' || googleReview ? <GoogleLogo /> : <Icon />}</span><div><h3>{googleReview || key === 'other' ? link.name : title}</h3><p>{link.bio || subtitle}</p></div><span className="hub-arrow"><NorthEast /></span></a>; })}</div>
         {!socialLinks.length && <p className="hub-empty">Social links will appear here once published.</p>}
       </section></div>
       {address && <div className="hub-address"><LocationOn /><span>{address}</span><a href={preview ? undefined : 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address)} target="_blank" rel="noopener noreferrer"><LocationOn /> Get directions <ArrowForward /></a></div>}

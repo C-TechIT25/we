@@ -62,6 +62,34 @@ body {
   box-shadow: 0 20px 50px rgba(23, 32, 51, 0.08) !important;
 }
 
+/* Featured review link, shared by both public profile layouts. */
+.google-review-card.google-review-card {
+  background: #fff;
+  color: #202124;
+  border: 1px solid #d2e3fc;
+  box-shadow: 0 5px 20px rgba(66, 133, 244, 0.16);
+  transition: transform 180ms ease, box-shadow 180ms ease;
+}
+.google-review-card.google-review-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 9px 26px rgba(66, 133, 244, 0.24);
+}
+.google-review-card.google-review-card:focus-visible,
+.google-review-card.google-review-card:focus-within {
+  outline: 3px solid #4285f4;
+  outline-offset: 3px;
+}
+.google-review-card.google-review-card:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 8px rgba(66, 133, 244, 0.18);
+}
+.google-review-card .hub-social-logo { background: #fff; }
+@media (prefers-reduced-motion: reduce) {
+  .google-review-card.google-review-card { transition: none; }
+  .google-review-card.google-review-card:hover,
+  .google-review-card.google-review-card:active { transform: none; }
+}
+
 /* ── Gradient text ── */
 .grad {
   background: linear-gradient(135deg, #172033 0%, #3673FC 100%);

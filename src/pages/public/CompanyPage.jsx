@@ -13,6 +13,8 @@ import CtechProfile from '../../components/CtechProfile';
 import { getCompanyAssets } from '../../utils/companyAssets';
 import { linkStatus, sortLinks } from '../../utils/links';
 import useLinkClock from '../../hooks/useLinkClock';
+import GoogleLogo from '../../components/GoogleLogo';
+import { isGoogleReview } from '../../utils/googleReview';
 
 
 /* ── Skeleton for one link row ── */
@@ -291,11 +293,12 @@ export default function CompanyPage({ companySlug }) {
         ) : (
           <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ maxWidth: { xs: 440, sm: 'none' }, mx: 'auto' }} justifyContent={{ xs: 'flex-start', sm: 'center' }}>
             {links.map(link => {
+              const googleReview = isGoogleReview(link);
               const Ico = MuiIcons[link.icon] || MuiIcons['Link'];
               return (
                 <Grid size={{ xs: 12, sm: 6 }} key={link.id}>
                   <Card
-                    className="lift"
+                    className={googleReview ? 'google-review-card' : 'lift'}
                     sx={{
                       background:
                         company?.theme?.cardStyle === 'solid' ? (link.background || '#475569') :
@@ -308,7 +311,12 @@ export default function CompanyPage({ companySlug }) {
                       overflow: 'hidden',
                       height: '100%',
                       color: company?.theme?.cardStyle === 'transparent' || link.background?.includes('rgba(255') ? (company?.theme?.textColor || '#172033') : '#ffffff',
-                      width: '100%'
+                      width: '100%',
+                      ...(googleReview && {
+                        background: '#fff', color: '#202124',
+                        border: '1px solid #d2e3fc',
+                        boxShadow: '0 5px 20px rgba(66,133,244,0.16)',
+                      }),
                     }}
                   >
                     <CardActionArea
@@ -328,13 +336,14 @@ export default function CompanyPage({ companySlug }) {
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         flexShrink: 0, overflow: 'hidden',
                         boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+                        ...(googleReview && { background: '#fff', boxShadow: 'none' }),
                       }}>
-                        <Ico sx={{ fontSize: { xs: 20, sm: 28 }, color: 'inherit' }} />
+                        {googleReview ? <GoogleLogo /> : <Ico sx={{ fontSize: { xs: 20, sm: 28 }, color: 'inherit' }} />}
                       </Box>
 
                       {/* Text */}
                       <Box sx={{ flex: 1, minWidth: 0, width: { xs: '100%', sm: 'auto' } }}>
-                        <Typography variant="subtitle1" fontWeight={700} color={company?.theme?.cardStyle === 'transparent' || link.background?.includes('rgba(255') ? (company?.theme?.textColor || '#172033') : 'white'}
+                        <Typography variant="subtitle1" fontWeight={700} color={googleReview ? '#202124' : company?.theme?.cardStyle === 'transparent' || link.background?.includes('rgba(255') ? (company?.theme?.textColor || '#172033') : 'white'}
                           sx={{ lineHeight: 1.25, mb: link.bio ? 0.3 : 0, fontSize: { xs: '0.8rem', sm: '1.02rem' }, overflowWrap: 'anywhere', whiteSpace: { xs: 'normal', sm: 'nowrap' }, overflow: 'hidden', textOverflow: 'ellipsis' }}>
                           {link.name}
                         </Typography>

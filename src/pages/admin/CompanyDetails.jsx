@@ -1,3 +1,5 @@
+import GoogleLogo from '../../components/GoogleLogo';
+import { isGoogleReview } from '../../utils/googleReview';
 import ModernSocialHub from '../../components/ModernSocialHub';
 import CtechProfile from '../../components/CtechProfile';
 import React, { useState, useEffect } from 'react';
@@ -355,42 +357,44 @@ export default function CompanyDetails() {
         /* Full-width links list */
         <Box>
           {links.map((link, index) => {
+            const googleReview = isGoogleReview(link);
+            const foreground = googleReview ? '#202124' : '#fff';
             const Ico = MuiIcons[link.icon] || MuiIcons['Link'];
             return (
               <Card
                 key={link.id}
                 onDragOver={event => { if (dragId && !updatingLinks) event.preventDefault(); }}
                 onDrop={event => { event.preventDefault(); void reorder(dragId, link.id); }}
-                className="lift"
+                className={googleReview ? 'google-review-card' : 'lift'}
                 sx={{
                   mb: 1.5,
                   width: '100%',
-                  background: link.background?.includes('rgba(255') ? '#475569' : (link.background || '#475569'),
-                  border: '1px solid rgba(255,255,255,0.1)',
+                  background: googleReview ? '#fff' : link.background?.includes('rgba(255') ? '#475569' : (link.background || '#475569'),
+                  border: googleReview ? '1px solid #d2e3fc' : '1px solid rgba(255,255,255,0.1)',
                   borderRadius: 3,
                 }}
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', p: 2, gap: 2, flexWrap: 'wrap' }}>
-                  <IconButton draggable={!updatingLinks} aria-label={`Drag to reorder ${link.name}`} onDragStart={event => { event.dataTransfer.setData('text/plain', link.id); event.dataTransfer.effectAllowed = 'move'; setDragId(link.id); }} onDragEnd={() => setDragId(null)} sx={{ color: 'white', cursor: 'grab' }}><MuiIcons.DragIndicator /></IconButton>
+                  <IconButton draggable={!updatingLinks} aria-label={`Drag to reorder ${link.name}`} onDragStart={event => { event.dataTransfer.setData('text/plain', link.id); event.dataTransfer.effectAllowed = 'move'; setDragId(link.id); }} onDragEnd={() => setDragId(null)} sx={{ color: foreground, cursor: 'grab' }}><MuiIcons.DragIndicator /></IconButton>
                   {/* Icon */}
                   <Box sx={{
                     width: 48, height: 48, borderRadius: 2,
-                    background: 'rgba(255,255,255,0.15)',
+                    background: googleReview ? '#f1f5fb' : 'rgba(255,255,255,0.15)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     flexShrink: 0,
                   }}>
-                    <Ico sx={{ fontSize: 24, color: '#fff' }} />
+                    {googleReview ? <GoogleLogo /> : <Ico sx={{ fontSize: 24, color: foreground }} />}
                   </Box>
 
                   {/* Text */}
                   <Box sx={{ flex: 1, minWidth: 0 }}>
-                    <Typography variant="subtitle2" fontWeight={600} color="white" noWrap>
+                    <Typography variant="subtitle2" fontWeight={600} color={foreground} noWrap>
                       {link.name}
                     </Typography>
-                    <Chip size="small" label={linkStatus(link, now)} sx={{ bgcolor: '#fff', color: '#172033', mt: 0.5 }} />
-                    {(link.startsAt || link.endsAt) && <Typography variant="caption" display="block" sx={{ color: '#fff', mt: 0.5 }}>{link.startsAt ? `From ${localDateInput(link.startsAt).replace('T', ' ')}` : 'No start limit'}{link.endsAt ? ` until ${localDateInput(link.endsAt).replace('T', ' ')}` : ''}</Typography>}
+                    <Chip size="small" label={linkStatus(link, now)} sx={{ bgcolor: foreground, color: '#172033', mt: 0.5 }} />
+                    {(link.startsAt || link.endsAt) && <Typography variant="caption" display="block" sx={{ color: foreground, mt: 0.5 }}>{link.startsAt ? `From ${localDateInput(link.startsAt).replace('T', ' ')}` : 'No start limit'}{link.endsAt ? ` until ${localDateInput(link.endsAt).replace('T', ' ')}` : ''}</Typography>}
                     {link.bio && (
-                      <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.8)' }} noWrap>
+                      <Typography variant="caption" sx={{ color: googleReview ? '#5f6368' : 'rgba(255,255,255,0.8)' }} noWrap>
                         {link.bio}
                       </Typography>
                     )}
@@ -399,11 +403,11 @@ export default function CompanyDetails() {
                   {/* Actions */}
                   <Box sx={{ display: 'flex', gap: 0.5, flexShrink: 0 }}>
                     <Switch checked={link.enabled !== false} disabled={updatingLinks} onChange={() => toggleLink(link)} inputProps={{ 'aria-label': `Enable ${link.name}` }} />
-                    <IconButton size="small" sx={{ color: '#fff' }} disabled={updatingLinks || index === 0} aria-label={`Move ${link.name} up`} onClick={() => reorder(link.id, links[index - 1].id)}><MuiIcons.ArrowUpward fontSize="small" /></IconButton>
-                    <IconButton size="small" sx={{ color: '#fff' }} disabled={updatingLinks || index === links.length - 1} aria-label={`Move ${link.name} down`} onClick={() => reorder(link.id, links[index + 1].id)}><MuiIcons.ArrowDownward fontSize="small" /></IconButton>
+                    <IconButton size="small" sx={{ color: foreground }} disabled={updatingLinks || index === 0} aria-label={`Move ${link.name} up`} onClick={() => reorder(link.id, links[index - 1].id)}><MuiIcons.ArrowUpward fontSize="small" /></IconButton>
+                    <IconButton size="small" sx={{ color: foreground }} disabled={updatingLinks || index === links.length - 1} aria-label={`Move ${link.name} down`} onClick={() => reorder(link.id, links[index + 1].id)}><MuiIcons.ArrowDownward fontSize="small" /></IconButton>
                     <Tooltip title="Edit">
                       <IconButton size="small" onClick={() => openEdit(link)}
-                        aria-label={`Edit ${link.name}`} sx={{ color: '#fff', background: 'rgba(255,255,255,0.15)', '&:hover': { background: 'rgba(255,255,255,0.25)' } }}>
+                        aria-label={`Edit ${link.name}`} sx={{ color: foreground, background: googleReview ? '#f1f5fb' : 'rgba(255,255,255,0.15)', '&:hover': { background: 'rgba(255,255,255,0.25)' } }}>
                         <EditIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                     </Tooltip>
