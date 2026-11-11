@@ -32,7 +32,6 @@ body {
 body {
   background: #ffffff;
 
-  background-attachment: fixed;
 }
 
 #root {
@@ -113,6 +112,17 @@ body {
   box-shadow: 0 2px 8px rgba(66, 133, 244, 0.18);
 }
 .google-review-card .hub-social-logo { background: #fff; }
+/* Keep native scrolling responsive without updating React on every scroll. */
+.public-profile.is-scrolling .google-review-card::after {
+  animation-play-state: paused;
+}
+.public-profile .lift { will-change: auto; }
+@media (hover: none) {
+  .public-profile .lift:hover,
+  .public-profile .google-review-card.google-review-card:hover {
+    transform: none;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .google-review-card.google-review-card::after { animation: none; }
   .google-review-card.google-review-card { transition: none; }

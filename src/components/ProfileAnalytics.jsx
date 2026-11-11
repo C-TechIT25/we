@@ -10,6 +10,21 @@ export default function ProfileAnalytics({ companyId, links, children }) {
   const seen = useRef(new Set());
   const [attribution] = useState(() => attributionFor(window.location.search, document.referrer, window.location.origin));
   useEffect(() => {
+    const container = root.current;
+    let resumeTimer;
+    const onScroll = () => {
+      container.classList.add('is-scrolling');
+      clearTimeout(resumeTimer);
+      resumeTimer = setTimeout(() => container.classList.remove('is-scrolling'), 160);
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      clearTimeout(resumeTimer);
+      container.classList.remove('is-scrolling');
+    };
+  }, []);
+  useEffect(() => {
     const record = (type, link) => {
       void addDoc(collection(db, 'analyticsEvents'), {
         companyId, type, linkId: link?.id || '', platform: link ? platformFor(link.url) : '', createdAt: serverTimestamp(), ...attribution,
@@ -40,5 +55,5 @@ export default function ProfileAnalytics({ companyId, links, children }) {
     container.querySelectorAll('a[href]').forEach(anchor => { if (findLink(anchor)) observer.observe(anchor); });
     return () => { observer.disconnect(); container.removeEventListener('click', click); container.removeEventListener('auxclick', click); };
   }, [companyId, links, attribution]);
-  return <div ref={root} style={{ display: 'contents' }}>{children}</div>;
+  return <div ref={root} className="public-profile" style={{ display: 'contents' }}>{children}</div>;
 }

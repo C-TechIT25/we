@@ -115,19 +115,19 @@ export default function CompanyPage({ companySlug }) {
 
       {/* Ambient blobs */}
       <Box sx={{
-        position: 'fixed', top: '-15%', left: '50%', transform: 'translateX(-50%)',
+        position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)',
         width: '100vw', height: '55vh',
         background: 'radial-gradient(ellipse,rgba(255,255,255,0.08) 0%,transparent 65%)',
         pointerEvents: 'none', zIndex: 0,
       }} />
       <Box sx={{
-        position: 'fixed', bottom: '-5%', right: '-15%',
+        position: 'absolute', bottom: 0, right: '-15%',
         width: '45vw', height: '45vw', borderRadius: '50%',
         background: 'radial-gradient(circle,rgba(255,255,255,0.06) 0%,transparent 70%)',
         pointerEvents: 'none', zIndex: 0,
       }} />
       <Box sx={{
-        position: 'fixed', top: '20%', left: '-15%',
+        position: 'absolute', top: '20%', left: '-15%',
         width: '35vw', height: '35vw', borderRadius: '50%',
         background: 'radial-gradient(circle,rgba(255,255,255,0.05) 0%,transparent 70%)',
         pointerEvents: 'none', zIndex: 0,
@@ -304,8 +304,6 @@ export default function CompanyPage({ companySlug }) {
                         company?.theme?.cardStyle === 'solid' ? (link.background || '#475569') :
                         company?.theme?.cardStyle === 'transparent' ? 'transparent' :
                         (link.background || '#475569'),
-                      backdropFilter: company?.theme?.cardStyle === 'transparent' ? 'none' : 'blur(20px)',
-                      WebkitBackdropFilter: company?.theme?.cardStyle === 'transparent' ? 'none' : 'blur(20px)',
                       border: company?.theme?.cardStyle === 'transparent' ? 'none' : '1px solid rgba(255,255,255,0.1)',
                       borderRadius: { xs: 4, sm: 3.5 },
                       overflow: 'hidden',
@@ -332,7 +330,6 @@ export default function CompanyPage({ companySlug }) {
                         width: { xs: 38, sm: 56 }, height: { xs: 38, sm: 56 },
                         borderRadius: { xs: 2, sm: 2.5 },
                         background: 'rgba(255,255,255,0.15)',
-                        backdropFilter: 'blur(8px)',
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
                         flexShrink: 0, overflow: 'hidden',
                         boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
